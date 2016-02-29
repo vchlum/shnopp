@@ -1,0 +1,23 @@
+$def with (keys, buttons, keys_friendly_name, form)
+<center>
+<h1>SmartHomeNotOnlyPiPowered u Váši</h1>
+</center>
+
+$for item in keys:
+    <div align="left">
+    <b>$keys_friendly_name[item]:</b><br>
+    </div>
+    <div align="center">
+    <form action="/action/$item" method="post">
+    $for i in buttons[item]:
+        $code:
+            button_width=90/len(buttons[item])
+        <input style="font-size:100%;height:40px;width:$(button_width)%" type="submit" value="$i" name="action"/>
+    </form>
+    </div>
+    <br>
+ 
+
+<form action="/action/askForItems" method="post">
+$:form.render()
+</form>
