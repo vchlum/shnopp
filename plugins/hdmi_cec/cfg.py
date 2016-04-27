@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
+import os
+
 from config import CMD
 
 CEC_DEV1="TV"
-CEC_DEV2="osmc"
+CEC_DEV2=os.uname()[1][:12]
 CEC_DEV3="PlayStation 4"
 CEC_DEV4="Chromecast"
 

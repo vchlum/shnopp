@@ -78,14 +78,14 @@ class KodiPlayer(xbmc.Player):
 #xbmc.executebuiltin("Action(contextmenu)")
 
 def wakeUpKodi():
-    pass
-    #xbmc.executebuiltin('Container.Update')
+    #pass
+    xbmc.executebuiltin('CECActivateSource')
     
 
             
 eventhandler = { EVENT.CECLOG_ACTIVESOURCE_OSMC:          wakeUpKodi,
-                # EVENT.CECLOG_ACTIVESOURCE_CHROMECAST:    blinkTopLeft,
-                # EVENT.CECLOG_ACTIVESOURCE_PLAYSTATION_4: blinkBottomRight,
+                # EVENT.CECLOG_ACTIVESOURCE_CHROMECAST:    aaa,
+                # EVENT.CECLOG_ACTIVESOURCE_PLAYSTATION_4: bbb,
                }
 
 def receiver(data, addr):

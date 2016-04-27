@@ -172,7 +172,7 @@ class Plugin(plugin.Plugin):
         self.libCEC = {}
         self.uidevice = uinput.Device(self.keymap.values())
         self.cecconfig = cec.libcec_configuration()
-        self.this_cec_name = os.uname()[1]
+        self.this_cec_name = os.uname()[1][:12]
         self.devices = {}
 
         self.autoinit = True
