@@ -10,7 +10,7 @@ from misc import logger
 from misc import plugin
 
 from config import CONST
-from config import REQ
+from config import METHOD
 
 if len( os.getenv( 'DISPLAY', '' ) ) == 0:
     os.putenv( 'DISPLAY', ':0.0' )
@@ -54,7 +54,7 @@ class Plugin(plugin.Plugin):
         except Exception as err:
             logger.logDebug("error: %s", err )
             
-        self.askForItems(None)
+        self.askForItems()
 
 
     #########################
@@ -62,24 +62,23 @@ class Plugin(plugin.Plugin):
     #
     def onRightClick(self, icon, eventbutton, eventtime):
         self.showPopupMenu(eventbutton, eventtime)
-
+        
     #########################
     ###
     #
-    def askForItems(self, widget):
-        self.items = {}
-        self.sendRequests(REQ.ITEMS)
+    def onAskForItems(self, widget):
+        self.askForItems()    
 
     #########################
     ###
     #
     def showPopupMenu(self, eventbutton, eventtime):
         if not self.items:
-            self.askForItems(None)
+            self.askForItems()
             
         reqreload = gtk.MenuItem(u'\u21BB', False)
         reqreload.show()
-        reqreload.connect('activate', self.askForItems)
+        reqreload.connect('activate', self.onAskForItems)
 
         about = gtk.MenuItem(u'\u00A9', False)
         about.show()
@@ -162,20 +161,19 @@ class Plugin(plugin.Plugin):
         cmdstring = CONST.DELIMITER.join(data.split(CONST.DELIMITER)[1:])
         
         logger.logDebug("Sending cmd for %s: '%s'" % (target, cmdstring) )
-        self.sendCommand((target, cmdstring))
+
+        self.sendJRPCRequest(METHOD.CMD, {"target": target, "cmds": [cmdstring]})
 
         return
 
     #########################
     ###
     #
-    def receiveData(self, data, mydata):        
+    def receiveData(self, data):        
         logger.logDebug("Received data: '%s'" % str(data))
-
-        if REQ.ITEMS in data.keys():
-            for target in data[REQ.ITEMS].keys():
-
-                if not target in self.items.keys():
+        if "result" in data:
+            if data["result"]["type"] == METHOD.ITEMS:
+                target = data["result"]["plugin"]
+                if not target in self.items:
                     self.items[target] = {}
-
-                self.items[target].update(data[REQ.ITEMS][target])
+                self.items[target].update(data["result"]["items"])

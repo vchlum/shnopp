@@ -14,7 +14,7 @@ CEC_THIS_DEV=CEC_DEV2
 
 
 
-CEC_DEV =  {"Obývák a kuchyň": {"TV stěna": { CEC_DEV1:  {CMD.POWERON: None, CMD.STANDBY: None},
+CEC_DEV =  {"Obývák": {"TV stěna": { CEC_DEV1:  {CMD.POWERON: None, CMD.STANDBY: None},
               CEC_DEV2:  {CMD.POWERON: None, CMD.STANDBY: None},
               CEC_DEV3:  {CMD.POWERON: None, CMD.STANDBY: None},
               CEC_DEV4:  {CMD.POWERON: None, CMD.STANDBY: None}, 

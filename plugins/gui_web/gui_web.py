@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
-import pkgutil
 import sys
 import os
-import threading
 
 from misc import logger
 from misc import plugin
 
 from config import CONST
-from config import REQ
+from config import METHOD
 
 import web
 
@@ -39,6 +37,9 @@ class Plugin(plugin.Plugin):
     
     render = web.template.render(os.path.join(os.path.dirname(__file__), 'gui_web_templates/'), base='base')
 
+    #########################
+    ###
+    #    
     class index:
         
         buttons = {}
@@ -46,7 +47,10 @@ class Plugin(plugin.Plugin):
         form = web.form.Form(
             web.form.Button(u'\u21BB'),
             )
-        
+
+        ##########
+        ##
+        #        
         def GET(self):
             form = self.form()
             self.buttons={}
@@ -59,13 +63,19 @@ class Plugin(plugin.Plugin):
             
             return render.index(sorted(self.buttons.keys()), self.buttons, keys_friendly_name, form)
 
+        ##########
+        ##
+        #
         def POST(self):
             form = self.form()
             if not form.validates():
                 # asi k nicemu
                 return render.index({}, form)
             raise web.seeother('/')
-        
+
+        ##########
+        ##
+        #        
         def getforms(self, path, data):
             for i in data:
                 if isinstance(data[i], dict):
@@ -79,12 +89,19 @@ class Plugin(plugin.Plugin):
                             self.buttons[path].append(i)
                     else:
                         self.buttons[path]=[i]
-        
+
+    #########################
+    ###
+    #        
     class action:
+        
+        ##########
+        ##
+        #        
         def POST(self, id):
             id=id.encode('utf-8')
             if (str(id) == "askForItems"):
-                sendRequests(REQ.ITEMS)
+                askForItems()
                 
             id = id + CONST.DELIMITER + web.data().encode('utf-8').split("=")[1]
             print str(id) 
@@ -93,21 +110,12 @@ class Plugin(plugin.Plugin):
             cmdstring = CONST.DELIMITER.join(id.split(CONST.DELIMITER)[1:])
         
             logger.logDebug("Sending cmd for %s: '%s'" % (target, cmdstring) )
-            sendCommand((target, cmdstring))
-        
-        
+            sendJRPCRequest(METHOD.CMD, {"target": target, "cmds": [cmdstring]})
+
             raise web.seeother('/')
+
+
         
-
-                          
-
-
-
-
-
-
-     
-
     #########################
     ###
     #
@@ -136,13 +144,12 @@ class Plugin(plugin.Plugin):
     #########################
     ###
     #
-    def receiveData(self, data, mydata):        
+    def receiveData(self, data):        
         logger.logDebug("Received data: '%s'" % str(data))
         
-        if REQ.ITEMS in data.keys():
-            for target in data[REQ.ITEMS].keys():
-
-                if not target in self.items.keys():
-                    self.items[target] = {}
-
-                self.items[target].update(data[REQ.ITEMS][target])
+        if "result" in data:
+            if data["result"]["type"] == METHOD.ITEMS:
+                target = data["result"]["plugin"]
+                if not target in self.items:
+                    self.items[target] = {}                
+                self.items[target].update(data["result"]["items"])

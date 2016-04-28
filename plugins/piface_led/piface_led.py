@@ -11,7 +11,7 @@ from misc import tasks
 from config import CONST        
 from config import CMD
 from config import EVENT
-from config import REQ
+from config import METHOD
 
 import cfg
 
@@ -193,15 +193,20 @@ class Plugin(plugin.Plugin):
     #########################
     ###
     #
-    def receiveData(self, data, mydata):        
+    def receiveData(self, data):        
         logger.logDebug("Received data: '%s'" % str(data))
+        
+        ##########
+        ## try autoresponse first
+        #         
+        self.autoResponder(data)        
         
         ##########
         ## data for me
         # 
-        if mydata:
-            if CMD.TAG in mydata.keys():
-                for cmdstring in mydata[CMD.TAG]:
+        if "method" in data:
+            if data["method"] == "cmd" and "cmds" in data["params"]:
+                for cmdstring in data["params"]["cmds"]:
                     try:
                         cmd = None
                         path = self.items
@@ -232,11 +237,3 @@ class Plugin(plugin.Plugin):
                         self.tasker.putTask(self.eventhandler[event])
                 except Exception as err:
                     logger.logError("Failed to handle event '%s' error: %s" % (event, str(err)))
-
-        ##########
-        ## requests
-        #
-        if REQ.TAG in data.keys():
-            for request in data[REQ.TAG]:
-                if request  == REQ.ITEMS:
-                    self.sendMyItems()

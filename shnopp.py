@@ -6,7 +6,6 @@ import os
 import stat
 import time
 import threading
-import json
 import pkgutil
 
 
@@ -85,7 +84,6 @@ class MainDaemon(daemon.Daemon):
     ###
     #
     def handleData(self, data_dict, addr):
-        reply = communicator.MESSAGE_HANDLER_ERROR
 
         if isinstance(addr, tuple):
             nodename = str(addr[0])
@@ -102,13 +100,9 @@ class MainDaemon(daemon.Daemon):
         status = "noreceiver"
         
         for plugin_name in plugins_with_receiver:
-             # preHandler guarantees data in dict
-            if plugin_name in data_dict.keys():
-                plugin_data_dict = data_dict[plugin_name]
-            else:
-                plugin_data_dict = {}
+            # preHandler guarantees data in dict
 
-            threading.Thread(target=self.plugins[plugin_name]["receiver"], args=(data_dict, plugin_data_dict)).start()
+            threading.Thread(target=self.plugins[plugin_name]["receiver"], args=(data_dict,)).start()
 
             logger.logDebug("Data '%s' passed to plugin %s" % (str(data_dict).strip(), plugin_name))
 
@@ -117,7 +111,9 @@ class MainDaemon(daemon.Daemon):
         if addr != '' and EVENT.TAG in data_dict.keys():
             for client in self.passthrough_clients:
                 if str(client.addr) == "": # pass to sock file only
-                    client.sendDictonary(data_dict)
+                    logger.logError("TODO: passing to sock file need to be fix")
+                    ### client.sendDictonary(data_dict)
+                    
 
         return status
 

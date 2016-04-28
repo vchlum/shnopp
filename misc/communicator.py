@@ -11,9 +11,10 @@ import json
 from config import CONST
 from config import EVENT
 from config import CMD
-from config import REQ
+from config import METHOD
 
 from misc import logger
+from __builtin__ import dict
 
 SOCKET_TCP = socket.SOCK_STREAM
 SOCKET_UDP = socket.SOCK_DGRAM
@@ -36,15 +37,15 @@ EXIT_DATA = [None, [], {}, "", "exit", "e", "quit", "q", "error"]
 #########################
 ### convert unicode dict to utf-8 dict
 # thx to: http://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-ones-from-json-in-python
-def byteify(input):
-    if isinstance(input, dict):
-        return {byteify(key):byteify(value) for key,value in input.iteritems()}
-    elif isinstance(input, list):
-        return [byteify(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
+def byteify(inputstring):
+    if isinstance(inputstring, dict):
+        return {byteify(key):byteify(value) for key,value in inputstring.iteritems()}
+    elif isinstance(inputstring, list):
+        return [byteify(element) for element in inputstring]
+    elif isinstance(inputstring, unicode):
+        return inputstring.encode('utf-8')
     else:
-        return input
+        return inputstring
 
 
 
@@ -61,7 +62,7 @@ def byteify(input):
 ############################################
 ### conector                             ###
 ############################################
-### add conversion and misc to socket ######
+### add conversion to/from JRPC ############
 ############################################
 
 class Connector(object):
@@ -78,12 +79,23 @@ class Connector(object):
     #
     def sendData(self, data):
         return self.send(data)
-
+    
+    #########################
+    ###
+    #
+    def sendEvents(self, data):
+        return self.sendJRPCRequest(METHOD.EVENT, data)
+        
     #########################
     ###
     #    
-    def sendDictonary(self, dict_data):
-        data = None
+    def sendJRPCRequest(self, method, params, jrpc_id = None):
+        print method
+        dict_data = {"jsonrpc":"2.0", "method":method, "params": params}
+        if jrpc_id:
+            dict_data["id"] = jrpc_id
+            
+        logger.logError(str(dict_data))
 
         try:
             data = json.dumps(dict_data, encoding="utf-8")
@@ -95,54 +107,33 @@ class Connector(object):
 
     #########################
     ###
-    #    
-    def sendWithTag(self, tag, *args):
-        dict_to_send = {}
-
-        try:
-            for a in args:
-                if isinstance(a, tuple):
-                    target = a[0]
-                    argtoappend = a[1]
-
-                    if target not in dict_to_send.keys():
-                        dict_to_send[target] = {tag: []}
-
-                    dict_to_send[target][tag].append(argtoappend)
-
-                else:
-                    if tag not in dict_to_send.keys():
-                        dict_to_send = {tag: []}
-                        
-                    argtoappend = a
-
-                    dict_to_send[tag].append(argtoappend)
-                    
-        except Exception as err:
-            logger.logError("Failed to parse array: '%s'" % str(err))
-            return CONST.RET_ERROR
-
-        return self.sendDictonary(dict_to_send) 
-        
-
-    #########################
-    ###
-    #    
-    def sendEvents(self, *events):
-        return self.sendWithTag(EVENT.TAG, *events)
-
-    #########################
-    ###
-    #    
-    def sendRequests(self, *requests):
-        return self.sendWithTag(REQ.TAG, *requests)
+    #        
+    def getJRPCErrorObject(self, code, message, data = None):
+        if data:
+            return {"code": code, "message": message, "data": data}
+        else:
+            return {"code": code, "message": message}
     
     #########################
     ###
     #    
-    def sendCommand(self, *cmds):
-        return self.sendWithTag(CMD.TAG, *cmds)
+    def sendJRPCResponse(self, result, jrpc_id = None, error = None):
+        dict_data = {}
+        dict_data["result"] = result
+        if jrpc_id:
+            dict_data["id"] = jrpc_id        
+        if error:
+            dict_data["error"] = error
+        dict_data["jsonrpc"] = "2.0"
 
+        try:
+            data = json.dumps(dict_data, encoding="utf-8")
+        except Exception as err:
+            logger.logError("Dump data to JSON failed: %s" % str(err))
+            return CONST.RET_ERROR
+
+        return self.sendData(data)    
+    
     #########################
     ###
     #

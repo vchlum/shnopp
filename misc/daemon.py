@@ -69,8 +69,8 @@ class Daemon(object):
         try: # redirect standard file descriptors if not yet
             logger.closestdIO()
         except:
-			pass
-			
+            pass
+
         # write pidfile
         atexit.register(self.delPID)
         pid = str(os.getpid())
@@ -103,7 +103,7 @@ class Daemon(object):
         try:
             # check if there exists a process with a given pid
             os.kill(pid, 0)
-        except OSError, err:
+        except:
             self.delPID()
             return None
 

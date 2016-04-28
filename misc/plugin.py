@@ -2,15 +2,12 @@
 # -*- coding: utf-8 -*- 
 
 import threading
-import json
-import sys
 
 from misc.communicator import Connector
 from misc import logger
 
 from config import CONST
-from config import REQ
-from config import CFG
+from config import METHOD
 
 
 
@@ -77,7 +74,7 @@ class Plugin(Connector):
     #########################
     ###
     #
-    def receiveData(self, data, mydata):
+    def receiveData(self, data):
         logger.logDebug("Input data '%s' not handled" % str(data).strip())
         return CONST.RET_OK
 
@@ -98,8 +95,22 @@ class Plugin(Connector):
     #########################
     ###
     #
-    def sendMyItems(self, name = None):
-        if not name:
-            name = self.getName()
-
-        return self.sendDictonary({REQ.ITEMS:{name:self.items}})
+    def askForItems(self):
+        self.sendJRPCRequest(METHOD.ITEMS, {"type":"request"})
+        
+    #########################
+    ###
+    #
+    def autoResponder(self, data):
+        if not "method" in data:
+            return
+        
+        if data["method"] == METHOD.ITEMS and data["params"]["type"] == "request":
+            self.sendItems()
+    
+    #########################
+    ###
+    #
+    def sendItems(self):
+        result = {"type":METHOD.ITEMS, "plugin":self.getName(), "items":self.items}
+        return self.sendJRPCResponse(result)

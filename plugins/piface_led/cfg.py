@@ -26,7 +26,7 @@ OUTPUT_COUNTER_CLOCKWISE = list(reversed(OUTPUT_CLOCKWISE))
 
 
 
-PIFACE_LED =   {"Obývák a kuchyň":{"TV stěna": {"Podsvícení":{ 
+PIFACE_LED =   {"Obývák":{"TV stěna": {"Podsvícení":{ 
                  LEFT_BOTTOM:  {CMD.ON: OUTPUT_4,      CMD.OFF: OUTPUT_4,      CMD.TOGGLE: OUTPUT_4},
                  RIGHT_BOTTOM: {CMD.ON: OUTPUT_5,      CMD.OFF: OUTPUT_5,      CMD.TOGGLE: OUTPUT_5},
                  LEFT_TOP:     {CMD.ON: OUTPUT_6,      CMD.OFF: OUTPUT_6,      CMD.TOGGLE: OUTPUT_6},

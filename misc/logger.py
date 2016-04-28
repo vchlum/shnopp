@@ -96,7 +96,7 @@ def closestdIO():
 #
 def logData(data):
     if isinstance(data, basestring):
-	    print data
+        print data
     else:
         print "[%s] %s: %s" % data
 
