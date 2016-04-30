@@ -101,13 +101,13 @@ class Plugin(Connector):
     #########################
     ###
     #
-    def autoResponder(self, data):
-        if not "method" in data:
+    def autoResponder(self, data_dict):
+        if not "method" in data_dict.keys():
             return
         
-        if data["method"] == METHOD.ITEMS and data["params"]["type"] == "request":
+        if data_dict["method"] == METHOD.ITEMS and data_dict["params"]["type"] == "request":
             self.sendItems()
-    
+
     #########################
     ###
     #

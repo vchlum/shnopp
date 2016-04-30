@@ -72,7 +72,7 @@ if __name__ == '__main__':
     player = KodiPlayer()
     monitor = KodiMonitor()
     
-    xbmc.sleep(10000)
+    xbmc.sleep(5000)
     bt_connect(MY_DEVICE)
     
     while not xbmc.Monitor().abortRequested():

@@ -4,3 +4,4 @@
 PING = "ping"
 ITEMS = "items"
 CMD = "cmd"
+EVENT = "event"

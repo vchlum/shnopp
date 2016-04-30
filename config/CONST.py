@@ -5,7 +5,7 @@ APP_NAME = "SmartHomeNotOnlyPiPowered"
 APP_SHORT_NAME = "shnopp"
 DESCRIPTION = ""
 AUTHORS = ["Vaclav Chlumsky <chlumskyvaclav@gmail.com>"]
-VERSION = "0.40~alfa"
+VERSION = "0.50~alfa"
 COPYRIGHT = "(C) 2016 Vaclav Chlumsky"
 
 DELIMITER = "::"

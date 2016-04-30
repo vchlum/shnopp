@@ -6,7 +6,7 @@ TAG = "event"
 
 ### personal ###
 
-PERSONAL_TIME_TO_WAKEUP = "personal time-wakeup"
+PERSONAL_TIME_TO_WAKEUP = "personal time-to-wakeup"
 PERSONAL_TIME_TO_SLEEP  = "personal time-to-sleep"
 
 ### cec ###

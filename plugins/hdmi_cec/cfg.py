@@ -5,6 +5,8 @@ import os
 
 from config import CMD
 
+EMIT_REMOTECONTROL_KEYS = False
+
 CEC_DEV1="TV"
 CEC_DEV2=os.uname()[1][:12]
 CEC_DEV3="PlayStation 4"

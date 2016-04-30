@@ -161,19 +161,17 @@ class Plugin(plugin.Plugin):
         cmdstring = CONST.DELIMITER.join(data.split(CONST.DELIMITER)[1:])
         
         logger.logDebug("Sending cmd for %s: '%s'" % (target, cmdstring) )
-
-        self.sendJRPCRequest(METHOD.CMD, {"target": target, "cmds": [cmdstring]})
-
-        return
+        self.sendCommands([cmdstring], target)
 
     #########################
     ###
     #
-    def receiveData(self, data):        
-        logger.logDebug("Received data: '%s'" % str(data))
-        if "result" in data:
-            if data["result"]["type"] == METHOD.ITEMS:
-                target = data["result"]["plugin"]
+    def receiveData(self, data_dict):        
+        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
+        
+        if "result" in data_dict.keys():
+            if data_dict["result"]["type"] == METHOD.ITEMS:
+                target = data_dict["result"]["plugin"]
                 if not target in self.items:
                     self.items[target] = {}
-                self.items[target].update(data["result"]["items"])
+                self.items[target].update(data_dict["result"]["items"])

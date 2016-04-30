@@ -78,8 +78,8 @@ class KodiPlayer(xbmc.Player):
 #xbmc.executebuiltin("Action(contextmenu)")
 
 def wakeUpKodi():
-    #pass
     xbmc.executebuiltin('CECActivateSource')
+    #pass
     
 
             
@@ -89,15 +89,18 @@ eventhandler = { EVENT.CECLOG_ACTIVESOURCE_OSMC:          wakeUpKodi,
                }
 
 def receiver(data, addr):
-    ##########
-    ## events
-    #
-    if EVENT.TAG in data.keys():
-        for event in data[EVENT.TAG]:
-            print("Received event: %s" % str(event))
+    
+    if "method" in data:
+        
+        ##########
+        ## events
+        #   
+        if data["method"] == METHOD.EVENT:
+            for event in data["params"]["events"]:
+                print("Received event: %s" % str(event))
 
-            if event in eventhandler.keys():
-                eventhandler[event]()
+                if event in eventhandler.keys():
+                    eventhandler[event]()
 
 
 if __name__ == '__main__':

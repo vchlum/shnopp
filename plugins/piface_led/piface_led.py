@@ -193,20 +193,21 @@ class Plugin(plugin.Plugin):
     #########################
     ###
     #
-    def receiveData(self, data):        
-        logger.logDebug("Received data: '%s'" % str(data))
+    def receiveData(self, data_dict):        
+        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
         
         ##########
         ## try autoresponse first
         #         
-        self.autoResponder(data)        
+        self.autoResponder(data_dict)        
         
-        ##########
-        ## data for me
-        # 
-        if "method" in data:
-            if data["method"] == "cmd" and "cmds" in data["params"]:
-                for cmdstring in data["params"]["cmds"]:
+        if "method" in data_dict.keys():
+            
+            ##########
+            ## cmds
+            #                  
+            if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
+                for cmdstring in data_dict["params"]["cmds"]:
                     try:
                         cmd = None
                         path = self.items
@@ -225,15 +226,15 @@ class Plugin(plugin.Plugin):
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
 
-        ##########
-        ## events
-        #
-        if EVENT.TAG in data.keys():
-            for event in data[EVENT.TAG]:
-                logger.logDebug("Received event: %s" % str(event))
+            ##########
+            ## events
+            #
+            if data_dict["method"] == METHOD.EVENT:
+                for event in data_dict["params"]["events"]:
+                    logger.logDebug("Received event: %s" % str(event))
 
-                try:
-                    if event in self.eventhandler.keys():
-                        self.tasker.putTask(self.eventhandler[event])
-                except Exception as err:
-                    logger.logError("Failed to handle event '%s' error: %s" % (event, str(err)))
+                    try:
+                        if event in self.eventhandler.keys():
+                            self.tasker.putTask(self.eventhandler[event])
+                    except Exception as err:
+                        logger.logError("Failed to handle event '%s' error: %s" % (event, str(err)))

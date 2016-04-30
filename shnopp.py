@@ -108,11 +108,15 @@ class MainDaemon(daemon.Daemon):
 
             status = communicator.MESSAGE_OK
             
-        if addr != '' and EVENT.TAG in data_dict.keys():
+        if addr != '':
             for client in self.passthrough_clients:
-                if str(client.addr) == "": # pass to sock file only
-                    logger.logError("TODO: passing to sock file need to be fix")
-                    ### client.sendDictonary(data_dict)
+
+                ###
+                ## pass to sock file
+                #
+                if str(client.addr) == "":
+                    client.sendDictAsJSON(data_dict)
+                
                     
 
         return status
@@ -251,8 +255,7 @@ class MainDaemon(daemon.Daemon):
                 plugin["instance"].setSender(self.broadcastData)
                 if plugin["instance"].receiverhandler:
                     plugin["receiver"] = plugin["instance"].receiverhandler
-                plugin["ready"] = True                    
-                plugin["instance"].sendMyItems()
+                plugin["ready"] = True
                 
                 logger.logInfo("Plugin %s ready" % plugin_name )
 

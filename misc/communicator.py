@@ -83,20 +83,7 @@ class Connector(object):
     #########################
     ###
     #
-    def sendEvents(self, data):
-        return self.sendJRPCRequest(METHOD.EVENT, data)
-        
-    #########################
-    ###
-    #    
-    def sendJRPCRequest(self, method, params, jrpc_id = None):
-        print method
-        dict_data = {"jsonrpc":"2.0", "method":method, "params": params}
-        if jrpc_id:
-            dict_data["id"] = jrpc_id
-            
-        logger.logError(str(dict_data))
-
+    def sendDictAsJSON(self, dict_data):
         try:
             data = json.dumps(dict_data, encoding="utf-8")
         except Exception as err:
@@ -104,6 +91,34 @@ class Connector(object):
             return CONST.RET_ERROR
 
         return self.sendData(data)
+    
+    #########################
+    ###
+    #
+    def sendEvents(self, data, target = None):
+        if not type(data) == list:
+            data = [data]
+
+        return self.sendJRPCRequest(METHOD.EVENT, {"target": target, "events": data})
+    
+    #########################
+    ###
+    #
+    def sendCommands(self, data, target = None):
+        if not type(data) == list:
+            data = [data]
+
+        return self.sendJRPCRequest(METHOD.CMD, {"target": target, "cmds": data})
+        
+    #########################
+    ###
+    #    
+    def sendJRPCRequest(self, method, params, jrpc_id = None):
+        dict_data = {"jsonrpc":"2.0", "method":method, "params": params}
+        if jrpc_id:
+            dict_data["id"] = jrpc_id
+            
+        return self.sendDictAsJSON(dict_data)
 
     #########################
     ###
@@ -126,13 +141,7 @@ class Connector(object):
             dict_data["error"] = error
         dict_data["jsonrpc"] = "2.0"
 
-        try:
-            data = json.dumps(dict_data, encoding="utf-8")
-        except Exception as err:
-            logger.logError("Dump data to JSON failed: %s" % str(err))
-            return CONST.RET_ERROR
-
-        return self.sendData(data)    
+        return self.sendDictAsJSON(dict_data)    
     
     #########################
     ###

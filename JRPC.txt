@@ -65,31 +65,21 @@
 
 
 ******************
-**** Request *****
+**** Cmd *****
 ******************
 {
  "jsonrpc": "2.0",
  "method": "cmd", 
- "params": [CMD1, CMD2], 
+ "params": {"target": "pluginname", "cmds": [CMD1, CMD2]}, 
  "id": None
 }
 
 ******************
-**** Request *****
+**** Event *****
 ******************
 {
  "jsonrpc": "2.0",
  "method": "event", 
- "params": [EVENT1, EVENT2], 
- "id": None
-}
-
-******************
-**** Request *****
-******************
-{
- "jsonrpc": "2.0",
- "method": "cmd", 
- "params": [CMD1, CMD2], 
+ "params": {"target": None, "events": [EVENT1, EVENT2]}, 
  "id": None
 }

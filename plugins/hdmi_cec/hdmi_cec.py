@@ -272,7 +272,8 @@ class Plugin(plugin.Plugin):
             self.libCEC.RescanActiveDevices()
             addresses = self.libCEC.GetActiveDevices()
             activeSource = self.libCEC.GetActiveSource()
-
+            logger.logInfo("CEC active device: %s" % self.getDeviceOSDName(activeSource) )
+            
             for iAddress in range(0, 15):
                 if addresses.IsSet(iAddress):
                     self.devices[self.libCEC.GetDeviceOSDName(iAddress)] = self.Device(iAddress, self.libCEC)
@@ -336,7 +337,7 @@ class Plugin(plugin.Plugin):
             self.setActiveSource()            
             
         if self[devicename]:            
-             self[devicename].poweronDevice()
+            self[devicename].poweronDevice()
      
     #########################
     ###
@@ -347,7 +348,7 @@ class Plugin(plugin.Plugin):
             self.standby()
             
         if self[devicename]:
-             self[devicename].standbyDevice()
+            self[devicename].standbyDevice()
           
 
     ######################################
@@ -412,8 +413,6 @@ class Plugin(plugin.Plugin):
                     self.sendEvents(EVENT.CECLOG_ACTIVESOURCE_TEMPLATE % osdName)
                 except Exception as err:
                     logger.logError("error %s" % str(err))
-                    
-        return RET_OK
     
     #########################
     ###
@@ -428,32 +427,28 @@ class Plugin(plugin.Plugin):
             self.sendEvents(EVENT.CEC_KEYRELEASED_TEMPLATE % (keycode, duration))
 
             if keycode in self.keymap.keys():
-                uidevice.emit_click(self.keymap[keycode])
-                logger.logDebug("[KEY] code %s emitted" % str(self.keymap[keycode]))
-
-        return RET_OK
+                if cfg.EMIT_REMOTECONTROL_KEYS:
+                    self.uidevice.emit_click(self.keymap[keycode])
+                    logger.logDebug("[KEY] code %s emitted" % str(self.keymap[keycode]))
 
     #########################
     ###
     #
     def cecCommandCallback(self, cmd):
         logger.logDebug("[COMMAND] %s" % cmd)
-        return RET_OK
 
     #########################
     ###
     #
     def cecMenuStateCallback(self, state):
         logger.logDebug("[MENUSTATE] %s" % str(state))
-        return RET_OK
 
     #########################
     ###
     #
     def cecSourceActivatedCallback(self, logicalAddress, activated):
-        logger.logDebug("[SOURCEACTIVATED] %s:%s active source: %s" % (str(logicalAddress), str(activated), cec_lib.GetActiveSourceOsdName()))
+        logger.logDebug("[SOURCEACTIVATED] %s:%s active source: %s" % (str(logicalAddress), str(activated), self.GetActiveSourceOsdName()))
         self.sendEvents(EVENT.CEC_ACTIVESOURCE_TEMPLATE % str(activated))
-        return RET_OK
 
     ######################################
     # event specific functions           # 
@@ -509,20 +504,21 @@ class Plugin(plugin.Plugin):
     ###
     #
     # example:  mydata  = '{"cmd":{"PlayStation 4:poweron", "TV:poweron"}}'
-    def receiveData(self, data):
-        logger.logDebug("Received data: '%s'" % str(data))
+    def receiveData(self, data_dict):
+        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
         
         ##########
         ## try autoresponse first
-        #         
-        self.autoResponder(data)        
+        #  spreding items, events       
+        self.autoResponder(data_dict)        
         
-        ##########
-        ## data for me
-        # 
-        if "method" in data:
-            if data["method"] == "cmd" and "cmds" in data["params"]:
-                for cmdstring in data["params"]["cmds"]:
+        if "method" in data_dict.keys():
+            
+            ##########
+            ## cmds
+            #             
+            if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
+                for cmdstring in data_dict["params"]["cmds"]:
                     try:                  
 
                         [item, command] = cmdstring.split(CONST.DELIMITER)[-2:]
@@ -530,16 +526,16 @@ class Plugin(plugin.Plugin):
                         self.cmdhandler[command](self, item)
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
+                        
+            ##########
+            ## events
+            #                              
+            if data_dict["method"] == METHOD.EVENT:
+                for event in data_dict["params"]["events"]:
+                    logger.logDebug("Received event: %s" % str(event))
 
-        ##########
-        ## events
-        #
-        if EVENT.TAG in data.keys():
-            for event in data[EVENT.TAG]:
-                logger.logDebug("Received event: %s" % str(event))
-
-                try:
-                    if event in self.eventhandler.keys():
-                        self.eventhandler[event](self)
-                except Exception as err:
-                    logger.logError("Failed to handle event '%s' error: %s" % (event, str(err)))
+                    try:
+                        if event in self.eventhandler.keys():
+                            self.eventhandler[event](self)
+                    except Exception as err:
+                        logger.logError("Failed to handle event '%s' error: %s" % (event, str(err)))                        
