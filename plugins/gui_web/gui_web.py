@@ -10,6 +10,8 @@ from misc import plugin
 from config import CONST
 from config import METHOD
 
+import cfg
+
 import web
 
 
@@ -131,7 +133,7 @@ class Plugin(plugin.Plugin):
     #
     def run(self):
         try:
-            sys.argv = []
+            sys.argv = [None, str(cfg.PORT)]
 
             fvars = globals()
 

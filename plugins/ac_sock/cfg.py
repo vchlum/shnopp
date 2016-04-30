@@ -11,8 +11,8 @@ AC_SOCK_ALL = "Vše"
 
 AC_SOCK_1 =     "Ložnice"
 
-AC_SOCK_1_1 =   "Lampička"
-AC_SOCK_1_2 =   "Postel"
+AC_SOCK_1_1 =   "Postel"
+AC_SOCK_1_2 =   "Lampička"
 AC_SOCK_1_3 =   "nic"
 AC_SOCK_1_4 =   "nic"
 
