@@ -120,8 +120,6 @@ class Plugin(plugin.Plugin):
 
             raise web.seeother('/')
 
-
-        
     #########################
     ###
     #
