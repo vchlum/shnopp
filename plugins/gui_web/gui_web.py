@@ -33,11 +33,24 @@ import web
 class Plugin(plugin.Plugin):
 
     urls = (
+        '/(js|css|img)/(.+\.js|.+\.png)', 'static',
         '/', 'index',
         '/action/(.+)', 'action'
         )
     
     render = web.template.render(os.path.join(os.path.dirname(__file__), 'gui_web_templates/'), base='base')
+    
+    class static:
+        def GET(self, media, filename):
+            try:
+                workingdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui_web_templates")
+                fullfilename = os.path.join(workingdir, media, filename)
+                f = open(fullfilename, 'r')
+                return f.read()
+                
+            except Exception as err:
+                logger.logError(str(err))
+                return 'aaa'
 
     #########################
     ###
@@ -131,7 +144,7 @@ class Plugin(plugin.Plugin):
     #
     def run(self):
         try:
-            sys.argv = [None, str(cfg.PORT)]
+            sys.argv = [sys.argv[0], str(cfg.PORT)]
 
             fvars = globals()
 
