@@ -172,7 +172,7 @@ class Plugin(plugin.Plugin):
         self.libCEC = {}
         self.uidevice = uinput.Device(self.keymap.values())
         self.cecconfig = cec.libcec_configuration()
-        self.this_cec_name = os.uname()[1][:12]
+        self.this_cec_name = cfg.CEC_THIS_DEV
         self.devices = {}
 
         self.autoinit = True
@@ -427,7 +427,7 @@ class Plugin(plugin.Plugin):
             self.sendEvents(EVENT.CEC_KEYRELEASED_TEMPLATE % (keycode, duration))
 
             if keycode in self.keymap.keys():
-                if cfg.EMIT_REMOTECONTROL_KEYS:
+                if hasattr(cfg, 'EMIT_REMOTECONTROL_KEYS') and cfg.EMIT_REMOTECONTROL_KEYS:
                     self.uidevice.emit_click(self.keymap[keycode])
                     logger.logDebug("[KEY] code %s emitted" % str(self.keymap[keycode]))
 
@@ -492,10 +492,10 @@ class Plugin(plugin.Plugin):
                    CMD.STANDBY: standbyDevice,
                   }
     
-    eventhandler = { EVENT.KODI_PLAYBACK_STARTED: poweronThisDev,
-                     EVENT.KODI_PLAYBACK_RESUMED: poweronThisDev,
+    eventhandler = { EVENT.KODI_PLAYBACK_STARTED_TEMPLATE % CONST.HOSTNAME: poweronThisDev,
+                     EVENT.KODI_PLAYBACK_RESUMED_TEMPLATE % CONST.HOSTNAME: poweronThisDev,
                      
-                     EVENT.KODI_SCREENSAVER_ACTIVATED:   standbyIfNobodyElse,
+                     EVENT.KODI_SCREENSAVER_ACTIVATED_TEMPLATE % CONST.HOSTNAME:   standbyIfNobodyElse,
 
                      EVENT.PERSONAL_TIME_TO_SLEEP: standbyAllAnyway,
                    }    
@@ -505,8 +505,7 @@ class Plugin(plugin.Plugin):
     #
     # example:  mydata  = '{"cmd":{"PlayStation 4:poweron", "TV:poweron"}}'
     def receiveData(self, data_dict):
-        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
-        
+
         ##########
         ## try autoresponse first
         #  spreding items, events       
@@ -532,7 +531,6 @@ class Plugin(plugin.Plugin):
             #                              
             if data_dict["method"] == METHOD.EVENT:
                 for event in data_dict["params"]["events"]:
-                    logger.logDebug("Received event: %s" % str(event))
 
                     try:
                         if event in self.eventhandler.keys():

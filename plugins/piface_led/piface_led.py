@@ -178,14 +178,14 @@ class Plugin(plugin.Plugin):
                      EVENT.CECLOG_ACTIVESOURCE_CHROMECAST:    blinkTopLeft,
                      EVENT.CECLOG_ACTIVESOURCE_PLAYSTATION_4: blinkBottomRight,
                      
-                     EVENT.KODI_PLAYBACK_STARTED: turnOffAll,
-                     EVENT.KODI_PLAYBACK_PAUSED:  turnOnBottom,
-                     EVENT.KODI_PLAYBACK_RESUMED: turnOffAll,
-                     EVENT.KODI_PLAYBACK_STOPPED: turnOnAll,
-                     EVENT.KODI_PLAYBACK_ENDED:   turnOnAll,
+                     EVENT.KODI_PLAYBACK_STARTED_TEMPLATE % CONST.HOSTNAME: turnOffAll,
+                     EVENT.KODI_PLAYBACK_PAUSED_TEMPLATE % CONST.HOSTNAME:  turnOnBottom,
+                     EVENT.KODI_PLAYBACK_RESUMED_TEMPLATE % CONST.HOSTNAME: turnOffAll,
+                     EVENT.KODI_PLAYBACK_STOPPED_TEMPLATE % CONST.HOSTNAME: turnOnAll,
+                     EVENT.KODI_PLAYBACK_ENDED_TEMPLATE % CONST.HOSTNAME:   turnOnAll,
                      
-                     EVENT.KODI_SCREENSAVER_ACTIVATED:   turnOffAll,
-                     EVENT.KODI_SCREENSAVER_DEACTIVATED: turnOnTop,
+                     EVENT.KODI_SCREENSAVER_ACTIVATED_TEMPLATE % CONST.HOSTNAME:   turnOffAll,
+                     EVENT.KODI_SCREENSAVER_DEACTIVATED_TEMPLATE % CONST.HOSTNAME: turnOnTop,
 
                      EVENT.PERSONAL_TIME_TO_SLEEP: turnOffAll,
                    }
@@ -194,7 +194,6 @@ class Plugin(plugin.Plugin):
     ###
     #
     def receiveData(self, data_dict):        
-        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
         
         ##########
         ## try autoresponse first
@@ -231,7 +230,6 @@ class Plugin(plugin.Plugin):
             #
             if data_dict["method"] == METHOD.EVENT:
                 for event in data_dict["params"]["events"]:
-                    logger.logDebug("Received event: %s" % str(event))
 
                     try:
                         if event in self.eventhandler.keys():

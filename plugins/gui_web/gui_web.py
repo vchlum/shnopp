@@ -50,7 +50,7 @@ class Plugin(plugin.Plugin):
                 
             except Exception as err:
                 logger.logError(str(err))
-                return 'aaa'
+                return ''
 
     #########################
     ###
@@ -80,7 +80,7 @@ class Plugin(plugin.Plugin):
                 keys_friendly_name[i] = (" - ").join(i.split(CONST.DELIMITER)[1:])
                 
             
-            return render.index(sorted(self.buttons.keys()), self.buttons, keys_friendly_name, form)
+            return render.index(CONST.APP_NAME, sorted(self.buttons.keys()), self.buttons, keys_friendly_name, form)
 
         ##########
         ##
@@ -162,7 +162,6 @@ class Plugin(plugin.Plugin):
     ###
     #
     def receiveData(self, data_dict):        
-        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
         
         if "result" in data_dict.keys():
             if data_dict["result"]["type"] == METHOD.ITEMS:

@@ -57,7 +57,6 @@ class Plugin(plugin.Plugin):
     ###
     #
     def receiveData(self, data_dict):        
-        logger.logDebug("Received data: '%s'" % str(data_dict))
 
         myhostname = socket.gethostname()
         

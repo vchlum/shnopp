@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
 
-import os
-
 from config import CMD
+from config import CONST
 
 EMIT_REMOTECONTROL_KEYS = False
+CEC_LOG_TO_DEFAULT_LOG = False
 
 CEC_DEV1="TV"
-CEC_DEV2=os.uname()[1][:12]
+CEC_DEV2=CONST.HOSTNAME[:12]
 CEC_DEV3="PlayStation 4"
 CEC_DEV4="Chromecast"
 
@@ -24,4 +24,4 @@ CEC_DEV =  {"Obývák": {"TV stěna": { CEC_DEV1:  {CMD.POWERON: None, CMD.STAND
 
 ITEMS              = CEC_DEV
 
-CEC_LOG_TO_DEFAULT_LOG = 0
+

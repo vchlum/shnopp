@@ -122,14 +122,14 @@ class Plugin(plugin.Plugin):
     # receiver and received cmd handlers # 
     ######################################
 
-    eventhandler = { EVENT.KODI_PLAYBACK_STARTED: iWannaDarkness,
-                     EVENT.KODI_PLAYBACK_PAUSED:  goForBeerLighting,
-                     EVENT.KODI_PLAYBACK_RESUMED: iWannaDarkness,
-                     EVENT.KODI_PLAYBACK_STOPPED: lightLighting,
-                     EVENT.KODI_PLAYBACK_ENDED:   goForBeerLighting,
+    eventhandler = { EVENT.KODI_PLAYBACK_STARTED_TEMPLATE % CONST.HOSTNAME: iWannaDarkness,
+                     EVENT.KODI_PLAYBACK_PAUSED_TEMPLATE % CONST.HOSTNAME:  goForBeerLighting,
+                     EVENT.KODI_PLAYBACK_RESUMED_TEMPLATE % CONST.HOSTNAME: iWannaDarkness,
+                     EVENT.KODI_PLAYBACK_STOPPED_TEMPLATE % CONST.HOSTNAME: lightLighting,
+                     EVENT.KODI_PLAYBACK_ENDED_TEMPLATE % CONST.HOSTNAME:   goForBeerLighting,
                      
-                     EVENT.KODI_SCREENSAVER_ACTIVATED:   iWannaDarkness,
-                     EVENT.KODI_SCREENSAVER_DEACTIVATED: lightLighting,
+                     EVENT.KODI_SCREENSAVER_ACTIVATED_TEMPLATE % CONST.HOSTNAME:   iWannaDarkness,
+                     EVENT.KODI_SCREENSAVER_DEACTIVATED_TEMPLATE % CONST.HOSTNAME: lightLighting,
 
                      EVENT.PERSONAL_TIME_TO_WAKEUP: morningLight,
                      EVENT.PERSONAL_TIME_TO_SLEEP: iWannaDarkness,
@@ -139,7 +139,6 @@ class Plugin(plugin.Plugin):
     ###
     #
     def receiveData(self, data_dict):     
-        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
         
         ##########
         ## try autoresponse first
@@ -168,7 +167,6 @@ class Plugin(plugin.Plugin):
             #
             if data_dict["method"] == METHOD.EVENT:
                 for event in data_dict["params"]["events"]:
-                    logger.logDebug("Received event: %s" % str(event))
 
                     try:
                         if event in self.eventhandler.keys():

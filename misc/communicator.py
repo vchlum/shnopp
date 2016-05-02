@@ -472,8 +472,9 @@ class SocketClient(Socket, Connector):
         except socket.error as err:
             logger.logError("Receiving data failed. Error Code: " + str(err[0]) + ' Message: ' + err[1])
             return (None, None)
+        
+        logger.logDebug("Data: '%s' received from: '%s'" % (str(recv_data).strip(), str(addr)))
 
-        #logger.logDebug("Data: '%s' received from: '%s'" % (str(recv_data).strip(), str(addr)))
         return (recv_data, addr)
 
     #########################
@@ -500,8 +501,9 @@ class SocketClient(Socket, Connector):
         except socket.error as err:
             logger.logError("Sending data failed. Error Code: " + str(err[0]) + ' Message: ' + err[1])
             return CONST.RET_IO_ERROR
+        
+        logger.logDebug("Data: '%s' sent to '%s'" % (str(data).strip(), str(addr)))
 
-        #logger.logDebug("Data: '%s' sent to '%s'" % (str(data).strip(), str(addr)))
         return CONST.RET_OK
 
     #########################
@@ -518,7 +520,7 @@ class SocketClient(Socket, Connector):
                 break
 
             (recv_data, addr) = self.dataPreHandler(recv_data, addr)
-
+            
             try:
                 reply_data = self.datahandler(recv_data, addr)
             except Exception as err:
@@ -528,7 +530,8 @@ class SocketClient(Socket, Connector):
             if not self.replying:
                 continue
 
-            self.send(reply_data, addr)
+            if self.send(reply_data, addr) != CONST.RET_OK:
+                logger.logError("Sending response data '%s' failed!" % str(reply_data))
 
             if reply_data in EXIT_DATA:
                 break

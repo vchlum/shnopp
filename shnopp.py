@@ -104,11 +104,11 @@ class MainDaemon(daemon.Daemon):
 
             threading.Thread(target=self.plugins[plugin_name]["receiver"], args=(data_dict,)).start()
 
-            logger.logDebug("Data '%s' passed to plugin %s" % (str(data_dict).strip(), plugin_name))
+            logger.logDebug("Recieved data passed to %s plugin." % plugin_name)
 
             status = communicator.MESSAGE_OK
             
-        if addr != '':
+        if addr != '': # if not from sockfile
             for client in self.passthrough_clients:
 
                 ###
@@ -124,7 +124,7 @@ class MainDaemon(daemon.Daemon):
     #########################
     ###
     #
-    def sendData(self, addr, data):
+    def sendDataTo(self, addr, data):
         ####
         # TODO create client and send
         ####
@@ -137,7 +137,7 @@ class MainDaemon(daemon.Daemon):
         logger.logDebug("Sending to all data: '%s'" % (", ".join(self.nodes.keys()), str(data)))
 
         for addr in self.nodes.keys():
-            threading.Thread(target=self.sendData, args=(addr, data)).start()
+            threading.Thread(target=self.sendDataTo, args=(addr, data)).start()
 
     #########################
     ###

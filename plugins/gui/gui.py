@@ -167,7 +167,6 @@ class Plugin(plugin.Plugin):
     ###
     #
     def receiveData(self, data_dict):        
-        logger.logDebug("Received data_dict: '%s'" % str(data_dict))
         
         if "result" in data_dict.keys():
             if data_dict["result"]["type"] == METHOD.ITEMS:

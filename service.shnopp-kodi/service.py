@@ -10,6 +10,7 @@ import json
 from misc import communicator
 from config import CFG
 from config import EVENT
+from config import CONST
 
 
 APP_NAME = "shnopp-kodi"
@@ -36,11 +37,11 @@ class KodiMonitor(xbmc.Monitor):
 
     def onScreensaverActivated(self, *arg):
         self.logger.debug("Screensaver activated")
-        self.clientsocket.sendEvents(EVENT.KODI_SCREENSAVER_ACTIVATED)
+        self.clientsocket.sendEvents(EVENT.KODI_SCREENSAVER_ACTIVATED_TEMPLATE % CONST.HOSTNAME)
 
     def onScreensaverDeactivated(self, *arg):
         self.logger.debug("Screensaver deactivated")
-        self.clientsocket.sendEvents(EVENT.KODI_SCREENSAVER_DEACTIVATED)
+        self.clientsocket.sendEvents(EVENT.KODI_SCREENSAVER_DEACTIVATED_TEMPLATE % CONST.HOSTNAME)
         
 
     def onDPMSActivated(self, *arg):
@@ -57,23 +58,23 @@ class KodiPlayer(xbmc.Player):
 
     def onPlayBackStarted(self, *arg):
         self.logger.debug("Playback started")
-        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_STARTED)
+        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_STARTED_TEMPLATE % CONST.HOSTNAME)
 
     def onPlayBackPaused(self, *arg):
         self.logger.debug("Playback paused")
-        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_PAUSED)
+        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_PAUSED_TEMPLATE % CONST.HOSTNAME)
 
     def onPlayBackResumed(self, *arg):
         self.logger.debug("Playback resumed")
-        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_RESUMED)
+        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_RESUMED_TEMPLATE % CONST.HOSTNAME)
 
     def onPlayBackStopped(self, *arg):
         self.logger.debug("Playback stopped")
-        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_STOPPED)
+        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_STOPPED_TEMPLATE % CONST.HOSTNAME)
 
     def onPlayBackEnded(self, *arg):
         self.logger.debug("Playback ended")
-        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_ENDED)
+        self.clientsocket.sendEvents(EVENT.KODI_PLAYBACK_ENDED_TEMPLATE % CONST.HOSTNAME)
 
 #xbmc.executebuiltin("Action(contextmenu)")
 

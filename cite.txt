@@ -1,2 +1,8 @@
-CRON'S WEB TECH BLOG
+Daemonizing
+http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
+
+Convert unicode dict to utf-8 dict
+http://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-ones-from-json-in-python
+
+Fix scroll position on web
 http://blog.crondesign.com/2009/09/scrollfix-remember-scroll-position-when.html
