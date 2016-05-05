@@ -12,35 +12,26 @@ from config import CONST
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### daemon                                                       ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### daemon class                         ###
-############################################
-# ref: http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
-############################################
-
 class Daemon(object):
+    """
+    deamon class - inspired by:
+    http://www.jejik.com/articles/2007/02/a_simple_unix_linux_daemon_in_python/
+    """
 
-    #########################
-    ###
-    #
     def __init__(self, pidfile, debug):
+        """
+        deamon init function
+        :param pidfile: used pidfile
+        :param debug: True/False - affects forking
+        """
         self.pidfile = pidfile
         self.debug = debug
 
-    #########################
-    ###
-    #
     def daemonize(self):
+        """
+        daemonize process
+        """
+        
         try:
             pid = os.fork()
             if pid > 0:
@@ -80,19 +71,21 @@ class Daemon(object):
 
         return CONST.RET_OK
 
-    #########################
-    ###
-    #
     def delPID(self):
+        """
+        delete pidfile
+        """
+        
         try:
             os.remove(self.pidfile)
         except:
             logger.logError("Remove pidfile %s failed" % self.pidfile)
 
-    #########################
-    ###
-    #
     def status(self):
+        """
+        check status
+        """
+        
         try:
             pf = file(self.pidfile,'r')
             pid = int(pf.read().strip())
@@ -109,10 +102,11 @@ class Daemon(object):
 
         return pid
         
-    #########################
-    ###
-    #
     def start(self):
+        """
+        start main process
+        if not debug - daemonize
+        """
         logger.logInfo("Starting...")
 
         pid = self.status()
@@ -139,10 +133,11 @@ class Daemon(object):
 
         return CONST.RET_OK
 
-    #########################
-    ###
-    #
     def stop(self):
+        """
+        stop process
+        """
+        
         logger.logInfo("Stoping...")
         try:
             pf = file(self.pidfile,'r')
@@ -156,7 +151,7 @@ class Daemon(object):
             # no pidfile - no error
             return CONST.RET_OK
 
-        # Try killing the daemon process
+        #Try killing the daemon process
         try:
             logger.logDebug("Trying to kill pid %s" % pid)
             while True:
@@ -174,19 +169,19 @@ class Daemon(object):
         logger.logInfo("Stopped")
         return CONST.RET_OK
 
-    #########################
-    ###
-    #
     def restart(self):
+        """
+        restart process - stop and start again
+        """
         logger.logInfo("Restarting...")
         if self.stop() == CONST.RET_OK:
             return self.start()
 
         return CONST.RET_ERROR
 
-    #########################
-    ###
-    # overwrite this
     def run(self):
+        """
+        default main loop - overwrite this
+        """
         while True:
             time.sleep(30)

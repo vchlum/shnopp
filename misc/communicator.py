@@ -28,16 +28,11 @@ EXIT_DATA = [None, [], {}, "", "exit", "e", "quit", "q", "error"]
 
 
 
-############################################
-### tools and helpers                    ###
-############################################
-############################################
-############################################
-
-#########################
-### convert unicode dict to utf-8 dict
-# thx to: http://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-ones-from-json-in-python
 def byteify(inputstring):
+    """
+    convert unicode dict to utf-8 dict
+    inspired by: http://stackoverflow.com/questions/956867/how-to-get-string-objects-instead-of-unicode-ones-from-json-in-python
+    """
     if isinstance(inputstring, dict):
         return {byteify(key):byteify(value) for key,value in inputstring.iteritems()}
     elif isinstance(inputstring, list):
@@ -49,41 +44,34 @@ def byteify(inputstring):
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### classes for communication                                    ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### conector                             ###
-############################################
-### add conversion to/from JRPC ############
-############################################
-
 class Connector(object):
+    """
+    object with function for conversion to/from JRPC
+    """
 
-    #########################
-    ###
-    #
     def send(self, data):
+        """
+        dump send function - overwrite this
+        :pram data: data to send 
+        """
+        
         logger.logWarning("Using dump send! Nothing happend.")
         return
 
-    #########################
-    ###
-    #
     def sendData(self, data):
+        """
+        function calls send function
+        :pram data: data to send 
+        """
+        
         return self.send(data)
     
-    #########################
-    ###
-    #
     def sendDictAsJSON(self, data_dict):
+        """
+        convert distionary to json and send
+        :pram data_dict: python dictionary with data to send
+        """
+        
         try:
             data = json.dumps(data_dict, encoding="utf-8")
         except Exception as err:
@@ -92,47 +80,63 @@ class Connector(object):
 
         return self.sendData(data)
     
-    #########################
-    ###
-    #
     def sendEvents(self, data, target = None):
+        """
+        send events, convert to JRPC
+        :pram data: python dictionary with data to send
+        :pram target: event target
+        """        
         if not type(data) == list:
             data = [data]
 
         return self.sendJRPCRequest(METHOD.EVENT, {"target": target, "events": data})
     
-    #########################
-    ###
-    #
     def sendCommands(self, data, target = None):
+        """
+        send commands, convert to JRPC
+        :pram data: python dictionary with data to send
+        :pram target: command target
+        """        
         if not type(data) == list:
             data = [data]
 
         return self.sendJRPCRequest(METHOD.CMD, {"target": target, "cmds": data})
         
-    #########################
-    ###
-    #    
     def sendJRPCRequest(self, method, params, jrpc_id = None):
+        """
+        send request in JRPC
+        :pram method: method
+        :pram params: params
+        :pram jrpc_id: id
+        """  
+                
         data_dict = {"jsonrpc":"2.0", "method":method, "params": params}
         if jrpc_id:
             data_dict["id"] = jrpc_id
             
         return self.sendDictAsJSON(data_dict)
 
-    #########################
-    ###
-    #        
     def getJRPCErrorObject(self, code, message, data = None):
+        """
+        get error object for JRPC response
+        :pram code: error code
+        :pram message: error message
+        :pram data: error data
+        """  
+                
         if data:
             return {"code": code, "message": message, "data": data}
         else:
             return {"code": code, "message": message}
     
-    #########################
-    ###
-    #    
     def sendJRPCResponse(self, result, jrpc_id = None, error = None):
+        """
+        send response in JRPC
+        :pram result: response
+        :pram jrpc_id: id
+        :pram error: error object if error
+        """  
+                
         data_dict = {}
         data_dict["result"] = result
         if jrpc_id:
@@ -143,10 +147,13 @@ class Connector(object):
 
         return self.sendDictAsJSON(data_dict)    
     
-    #########################
-    ###
-    #
     def dataPreHandler(self, data, *args):
+        """
+        decode JSON to dictionary
+        :pram data: json data to decode
+        :pram *args: rest of data - not important
+        """  
+                
         data_dict = {}
 
         try:

@@ -108,38 +108,42 @@ class MainDaemon(daemon.Daemon):
    
         return status
     
-    #########################
-    ###
-    #
     def pluginSender(self, data):
+        """
+        pluginSender - sender used by plugins
+        :param data: 
+        """
+        
         if CFG.SOCKET_UDP_ENABLED:
             self.broadcastData(data)
         
         for client in self.passthrough_clients:
             client.sendData(data)
 
-    #########################
-    ###
-    #
     def sendDataTo(self, addr, data):
-        ####
-        # TODO create client and send
-        ####
-        return
+        """
+        sendDataTo - TODO: create client and send
+        """
+        
+        pass
 
-    #########################
-    ###
-    #
     def sendDataToAll(self, data):
+        """
+        sendDataToAll - send TCP data to all nodes
+        :param data: 
+        """
+        
         logger.logDebug("Sending to all data: '%s'" % (", ".join(self.nodes.keys()), str(data)))
 
         for addr in self.nodes.keys():
             threading.Thread(target=self.sendDataTo, args=(addr, data)).start()
 
-    #########################
-    ###
-    #
     def broadcastData(self, data):
+        """
+        broadcastData - UDP broadcaster
+        :param data: 
+        """
+        
         logger.logDebug("Broadcasting data: '%s'" % str(data))
 
         broadcast = communicator.SocketClient((communicator.BROADCAST_HOST, CFG.SOCKET_UDP_PORT), communicator.SOCKET_UDP)
@@ -150,15 +154,17 @@ class MainDaemon(daemon.Daemon):
         broadcast.sendData(data)
         broadcast.close()
             
-    #########################
-    ###
-    #
     def startEventServer(self):
+        """
+        startEventServer - start enabled servers (tcp, udp, socket file)
+        :param data: 
+        """        
 
-        #############
-        ### TCP
-        #
         if CFG.SOCKET_TCP_ENABLED:
+            """
+            Start TCP server
+            """
+            
             addr = (CFG.SOCKET_TCP_HOSTNAME, CFG.SOCKET_TCP_PORT)
             server_tcp = communicator.SocketServer(addr, communicator.SOCKET_TCP)
             server_tcp.keepAlive(True)
@@ -169,10 +175,11 @@ class MainDaemon(daemon.Daemon):
             else:
                 logger.logError("Starting TCP server failed")
 
-        #############
-        ### UDP
-        #
         if CFG.SOCKET_UDP_ENABLED:
+            """
+            Start UDP server
+            """
+            
             addr = (CFG.SOCKET_UDP_HOSTNAME, CFG.SOCKET_UDP_PORT)
             server_udp = communicator.SocketServer(addr, communicator.SOCKET_UDP)
             server_udp.keepAlive(False)
@@ -183,10 +190,11 @@ class MainDaemon(daemon.Daemon):
             else:
                 logger.logError("Starting UDP server failed")            
 
-        #############
-        ### UNIX
-        #
         if CFG.SOCKET_UNIX_ENABLED:
+            """
+            Start socket file
+            """
+            
             addr = CFG.SOCKET_UNIX_FILE
             server_unixfile = communicator.SocketServer(addr, communicator.SOCKET_TCP)
             server_unixfile.keepAlive(True)
@@ -198,18 +206,16 @@ class MainDaemon(daemon.Daemon):
             else:
                 logger.logError("Starting unixfile server failed")            
 
-        #############
-        ### UDP Discovery
-        #
-        # TODO
+        """
+        TODO: UDP Discovery
+        """
 
-    #########################
-    ###
-    #
     def loadPlugins(self):
+        """
+        load plugins from plugin folder as modules
+        """
+        
         import plugins
-        
-        
 
         def onerror(msg):
             logger.logError("Error importing plugin %s" % msg)
@@ -226,7 +232,9 @@ class MainDaemon(daemon.Daemon):
             if len(parsed_plugin_name) == 3 and parsed_plugin_name[1] != parsed_plugin_name[2]:
                 continue # if in dir only same name
 
-            # debug - disable plugins, list of plugin_name
+            """
+            debug - disable plugins, list of plugin_name
+            """
             #disabled = ["gui_web", "system"]
             disabled = ["gui"]
             if parsed_plugin_name[-1] in disabled:
@@ -247,10 +255,11 @@ class MainDaemon(daemon.Daemon):
 
                 logger.logInfo("Plugin %s successfully loaded." % plugin_name )
     
-    #########################
-    ###
-    #
     def initPlugins(self):
+        """
+        call init function of each plugin
+        """
+                
         for plugin_name in self.plugins.keys():
             plugin = self.plugins[plugin_name]
             
@@ -266,10 +275,12 @@ class MainDaemon(daemon.Daemon):
             except Exception as err:
                 logger.logWarning("Init plugin %s error: %s" % (str(plugin_name), str(err)) )
 
-    #########################
-    ###
-    #
+
     def run(self):
+        """
+        main run - loop
+        """        
+        
         self.loadPlugins()
         self.initPlugins()
         
@@ -283,17 +294,11 @@ class MainDaemon(daemon.Daemon):
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### main - it actually starts from here                          ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
 if __name__ == "__main__":
+    """
+    deamon starter
+    """
+    
     debug = False
 
     if "--debug" in sys.argv or "-d" in sys.argv:
