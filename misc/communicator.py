@@ -83,9 +83,9 @@ class Connector(object):
     #########################
     ###
     #
-    def sendDictAsJSON(self, dict_data):
+    def sendDictAsJSON(self, data_dict):
         try:
-            data = json.dumps(dict_data, encoding="utf-8")
+            data = json.dumps(data_dict, encoding="utf-8")
         except Exception as err:
             logger.logError("Dump data to JSON failed: %s" % str(err))
             return CONST.RET_ERROR
@@ -114,11 +114,11 @@ class Connector(object):
     ###
     #    
     def sendJRPCRequest(self, method, params, jrpc_id = None):
-        dict_data = {"jsonrpc":"2.0", "method":method, "params": params}
+        data_dict = {"jsonrpc":"2.0", "method":method, "params": params}
         if jrpc_id:
-            dict_data["id"] = jrpc_id
+            data_dict["id"] = jrpc_id
             
-        return self.sendDictAsJSON(dict_data)
+        return self.sendDictAsJSON(data_dict)
 
     #########################
     ###
@@ -133,15 +133,15 @@ class Connector(object):
     ###
     #    
     def sendJRPCResponse(self, result, jrpc_id = None, error = None):
-        dict_data = {}
-        dict_data["result"] = result
+        data_dict = {}
+        data_dict["result"] = result
         if jrpc_id:
-            dict_data["id"] = jrpc_id        
+            data_dict["id"] = jrpc_id        
         if error:
-            dict_data["error"] = error
-        dict_data["jsonrpc"] = "2.0"
+            data_dict["error"] = error
+        data_dict["jsonrpc"] = "2.0"
 
-        return self.sendDictAsJSON(dict_data)    
+        return self.sendDictAsJSON(data_dict)    
     
     #########################
     ###
@@ -473,7 +473,7 @@ class SocketClient(Socket, Connector):
             logger.logError("Receiving data failed. Error Code: " + str(err[0]) + ' Message: ' + err[1])
             return (None, None)
         
-        logger.logDebug("Data: '%s' received from: '%s'" % (str(recv_data).strip(), str(addr)))
+        logger.logDebug("From: '%s' received data: '%s'" % (str(addr), str(recv_data).strip()))
 
         return (recv_data, addr)
 
@@ -488,7 +488,7 @@ class SocketClient(Socket, Connector):
             self.initClient() # conection error? try repair...
 
         if not self.sock:
-            logger.logError("Cant't send data '%s' to '%s'. Socket not ready" % (str(data).strip(), str(addr)))
+            logger.logError("Socket not ready! Cant't send to '%s' data '%s'." % (str(addr), str(data).strip()))
             return CONST.RET_IO_ERROR
             
         try:
@@ -502,7 +502,7 @@ class SocketClient(Socket, Connector):
             logger.logError("Sending data failed. Error Code: " + str(err[0]) + ' Message: ' + err[1])
             return CONST.RET_IO_ERROR
         
-        logger.logDebug("Data: '%s' sent to '%s'" % (str(data).strip(), str(addr)))
+        logger.logDebug("To '%s' sent data: '%s'" % (str(addr), str(data).strip()))
 
         return CONST.RET_OK
 

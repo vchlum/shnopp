@@ -3,7 +3,6 @@
 
 import uinput
 import re
-import os
 
 from misc import logger
 from misc import plugin

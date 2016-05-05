@@ -123,7 +123,6 @@ class Plugin(plugin.Plugin):
                 askForItems()
                 
             id = id + CONST.DELIMITER + web.data().encode('utf-8').split("=")[1]
-            print str(id) 
             
             target = id.split(CONST.DELIMITER)[0]
             cmdstring = CONST.DELIMITER.join(id.split(CONST.DELIMITER)[1:])
@@ -167,5 +166,6 @@ class Plugin(plugin.Plugin):
             if data_dict["result"]["type"] == METHOD.ITEMS:
                 target = data_dict["result"]["plugin"]
                 if not target in self.items:
-                    self.items[target] = {}                
+                    self.items[target] = {}    
+     
                 self.items[target].update(data_dict["result"]["items"])

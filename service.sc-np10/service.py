@@ -21,13 +21,11 @@ def bt_connect(device):
     out = bt_command("info", device)
     for line in out.split("\n"):
         if re.match("\s*Connected:\s*yes\s*", line):
-            #dialog.notification(device, "Jiz pripojeno!")
             return
-    dialog.notification(device, "Pripojuji...")
+    dialog.notification(device, "Pripojuji BT...")
     bt_command("connect", device)
 
 def bt_disconnect(device):
-    #dialog.notification(MY_DEVICE, "Odpojuji...")
     bt_command("disconnect", device)
 
 class KodiMonitor(xbmc.Monitor):

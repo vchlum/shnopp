@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*- 
 
 import sys
+sys.dont_write_bytecode = True
+
 import os
 import stat
 import time
@@ -9,7 +11,6 @@ import threading
 import pkgutil
 
 
-sys.dont_write_bytecode = True
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 from config import CFG
@@ -19,17 +20,9 @@ from config import EVENT
 from misc import *
 
 
-
-####################################################################
-####################################################################
-####################################################################
-### init system                                                  ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
+"""
+main init system
+"""
 try:
     # create and set working dirs
     if not os.path.exists(CFG.DIR_RUN):
@@ -45,45 +38,29 @@ except Exception as err:
     sys.exit(CONST.RET_ERROR)
 
 
-
-####################################################################
-####################################################################
-####################################################################
-### later used function                                          ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
 def print_usage():
+    """
+    print usage
+    """
+    
     print "usage: %s start|stop|restart [-d|--debug]" % sys.argv[0]
 
-####################################################################
-####################################################################
-####################################################################
-### main classes                                                 ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### main daemon class                    ###
-############################################
-### this is the core #######################
-############################################
-
 class MainDaemon(daemon.Daemon):
+    """
+    main daemon class - this is the core - child of deaemon
+    """
+
     nodes = {} # nodes in neighbourhood
     plugins = {} # loaded plugins
-    passthrough_clients = None
+    passthrough_clients = []
 
-    #########################
-    ###
-    #
+
     def handleData(self, data_dict, addr):
+        """
+        handleData - main data handler
+        :param data_dict: data in python dictionary, preHandler guarantees data in dict
+        :param addr: addr from
+        """
 
         if isinstance(addr, tuple):
             nodename = str(addr[0])
@@ -94,32 +71,52 @@ class MainDaemon(daemon.Daemon):
             self.nodes[nodename] = {}
             self.nodes[nodename]["addr"] = addr
             logger.logInfo("New node '%s' discovered" % nodename)
-           
+        """    
+        if not from sockfile - pass to sock file
+        """
+        if addr != '':
+            for client in self.passthrough_clients:
+
+                if str(client.addr) == "":
+                    client.sendDictAsJSON(data_dict)
+        
+        """
+        if from sockfile - broadcast
+        """
+        if False and addr == '': 
+            conn = communicator.Connector()
+            conn.send=self.broadcastData
+            conn.sendDictAsJSON(data_dict)
+        
+            """
+            The data has been broadcasted anyway, end this finction...
+            """
+            if CFG.SOCKET_TCP_ENABLED or CFG.SOCKET_UDP_ENABLED:
+                return communicator.MESSAGE_OK
+                        
         plugins_with_receiver = [key for key in self.plugins.keys() if "receiver" in self.plugins[key].keys()]
 
         status = "noreceiver"
         
         for plugin_name in plugins_with_receiver:
-            # preHandler guarantees data in dict
-
+            
             threading.Thread(target=self.plugins[plugin_name]["receiver"], args=(data_dict,)).start()
 
             logger.logDebug("Recieved data passed to %s plugin." % plugin_name)
 
             status = communicator.MESSAGE_OK
-            
-        if addr != '': # if not from sockfile
-            for client in self.passthrough_clients:
-
-                ###
-                ## pass to sock file
-                #
-                if str(client.addr) == "":
-                    client.sendDictAsJSON(data_dict)
-                
-                    
-
+   
         return status
+    
+    #########################
+    ###
+    #
+    def pluginSender(self, data):
+        if CFG.SOCKET_UDP_ENABLED:
+            self.broadcastData(data)
+        
+        for client in self.passthrough_clients:
+            client.sendData(data)
 
     #########################
     ###
@@ -152,7 +149,6 @@ class MainDaemon(daemon.Daemon):
         broadcast.useReplying(False) #default
         broadcast.sendData(data)
         broadcast.close()
-        return
             
     #########################
     ###
@@ -197,8 +193,8 @@ class MainDaemon(daemon.Daemon):
             server_unixfile.useReplying(CFG.SOCKET_UNIX_ENABLE_REPLY)
             server_unixfile.setDataHandler(self.handleData)
             if server_unixfile.startServer() == CONST.RET_OK:
-                self.passthrough_clients = server_unixfile.clients
                 server_unixfile.listenServer()
+                self.passthrough_clients = server_unixfile.clients
             else:
                 logger.logError("Starting unixfile server failed")            
 
@@ -213,6 +209,8 @@ class MainDaemon(daemon.Daemon):
     def loadPlugins(self):
         import plugins
         
+        
+
         def onerror(msg):
             logger.logError("Error importing plugin %s" % msg)
             
@@ -227,6 +225,12 @@ class MainDaemon(daemon.Daemon):
             
             if len(parsed_plugin_name) == 3 and parsed_plugin_name[1] != parsed_plugin_name[2]:
                 continue # if in dir only same name
+
+            # debug - disable plugins, list of plugin_name
+            #disabled = ["gui_web", "system"]
+            disabled = ["gui"]
+            if parsed_plugin_name[-1] in disabled:
+                continue
             
             try:
                 loader = importer.find_module(plugin_name)                
@@ -252,7 +256,7 @@ class MainDaemon(daemon.Daemon):
             
             try:
                 plugin["instance"] = plugin["module"].Plugin(plugin_name)
-                plugin["instance"].setSender(self.broadcastData)
+                plugin["instance"].setSender(self.pluginSender)
                 if plugin["instance"].receiverhandler:
                     plugin["receiver"] = plugin["instance"].receiverhandler
                 plugin["ready"] = True
