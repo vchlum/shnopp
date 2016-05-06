@@ -7,47 +7,41 @@ import threading
 from misc import logger
 
 
-####################################################################
-####################################################################
-####################################################################
-### queue sequent run task                                       ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### tasks class                          ###
-############################################
-############################################
-############################################
 
 class Tasks(object):
+    """
+    tasker - queue sequent run task
+    """
 
-    #########################
-    ###
-    #
     def __init__(self):
+        """
+        init tasker, start main thread
+        """
+        
         self.handler = None
-        threading.Thread(target=self.taskHandlerThread).start()
+        threading.Thread(target=self.taskThread).start()
 
-    #########################
-    ###
-    #
     def setTaskHandler(self, handler):
+        """
+        set tasks handler
+        :param handler: every task is passed to this function
+        """
+        
         self.handler = handler
 
-    #########################
-    ###
-    #
     def putTask(self, task):
+        """
+        enqueue new task
+        :param task: task for task handler
+        """
+        
         self.tasks.put(task)
 
-    #########################
-    ###
-    #
-    def taskHandlerThread(self):
+    def taskThread(self):
+        """
+        tasker main thread - loop 
+        """
+        
         logger.logDebug("Task thread started")
 
         self.tasks = Queue.Queue()

@@ -167,18 +167,18 @@ class Connector(object):
 
 
 
-############################################
-### socket general corpus                ###
-############################################
-############################################
-############################################
-
 class Socket(object):
+    """
+    general socket corpus
+    """
 
-    #########################
-    ###
-    #
     def __init__(self, addr=("",None), protocol = SOCKET_TCP):
+        """
+        init socket
+        :pram addr: ("", port) or socket name
+        :pram protocol: SOCKET_TCP or SOCKET_UDP 
+        """
+        
         self.addr = addr
         self.protocol = protocol
         self.sock = None
@@ -192,41 +192,55 @@ class Socket(object):
         self.replying = False
         self.keepalive = False
 
-    #########################
-    ###
-    #
     def __del__(self):
+        """
+        call close function
+        """
+        
         self.close()
 
-    #########################
-    ###
-    #
     def dataHandler(self, recv_data, addr):
+        """
+        this handler is supposed to be overwritten
+        :param recv_data: incomming data
+        :param addr: from
+        """
+        
         logger.logWarning("Data from '%s' not handled. Received data: '%s'" % (str(addr), str(recv_data).strip()))
         return MESSAGE_OK
 
-    #########################
-    ###
-    #
     def setDataHandler(self, handler = dataHandler):
+        """
+        data handler setter
+        :param handler: function "dataHandler(self, recv_data, addr)"
+        """
+        
         self.datahandler = handler
 
-    #########################
-    ###
-    #
     def useReplying(self, replying):
+        """
+        allow replying to messages
+        :param replying: True or False
+        """
+        
         self.replying = replying
 
-    #########################
-    ###
-    #
+
     def keepAlive(self, keepalive = True):
+        """
+        auto reconnect when connection lost
+        :param keepalive: True or False
+        """
+                
         self.keepalive = keepalive
 
-    #########################
-    ###
-    #
     def keepAliveThread(self, starter, immortal):
+        """
+        main auto reconnect thre4ad
+        :param starter: function recconection connection
+        :param imortal: function, that should be recovered when fail
+        """
+                
         attempcounter = 0
         while True:
 
@@ -251,10 +265,11 @@ class Socket(object):
 
             break
 
-    #########################
-    ###
-    #
     def close(self):
+        """
+        shutdown and close socket
+        """
+        
         try:
             self.sock.shutdown(socket.SHUT_RDWR)
             self.sock.close()
@@ -271,27 +286,36 @@ class Socket(object):
 ############################################
 ############################################
 #
-### use example:
-# server = SocketServer(("localhost", 1234), SOCKET_TCP)
-# server.startServer()
-# server.keepAlive(True)
-# server.useReplying(True)
-# server.setDataHandler(myawesomehandlerreturningreply(data, from))
-# server.listenServer()
+
 #
 
 class SocketServer(Socket):
+    """
+    socket server, example:
+    server = SocketServer(("localhost", 1234), SOCKET_TCP)
+    server.startServer()
+    server.keepAlive(True)
+    server.useReplying(True)
+    server.setDataHandler(myawesomehandlerreturningreply(data, from))
+    server.listenServer()
+    """
+    
     clients = []
-    #########################
-    ###
-    #
+
     def __init__(self, addr=("",None), protocol = SOCKET_TCP):
+        """
+        init socket
+        :pram addr: ("", port) or socket name
+        :pram protocol: SOCKET_TCP or SOCKET_UDP 
+        """
+                
         super(SocketServer, self).__init__(addr, protocol)
 
-    #########################
-    ###
-    #
     def startServer(self):
+        """
+        TCP/UDP server creation 
+        """
+        
         self.close()
 
         try:
@@ -310,10 +334,11 @@ class SocketServer(Socket):
             return CONST.RET_ERROR
         return CONST.RET_OK
 
-    #########################
-    ###
-    #
     def listenServer(self):
+        """
+        server listener
+        """
+        
         logger.logDebug("Starting listener on '%s'" % str(self.addr))
         
         if self.protocol == SOCKET_TCP:
@@ -333,10 +358,11 @@ class SocketServer(Socket):
         t.setDaemon(True)
         t.start()
 
-    #########################
-    ###
-    #
     def listenTCPThread(self):
+        """
+        TCP listener thread
+        """
+        
         logger.logInfo("TCP listener started on '%s'" % str(self.addr))
 
         while True:
@@ -351,10 +377,10 @@ class SocketServer(Socket):
 
         logger.logInfo("TCP listener on '%s' ended" % str(self.addr))
 
-    #########################
-    ###
-    #
     def listenUDPThread(self):
+        """
+        UDP listener thread
+        """        
         while True:
             if not self.sock:
                 break
@@ -365,10 +391,13 @@ class SocketServer(Socket):
 
             logger.logInfo("UDP listener on '%s' ended" % str(self.addr))
 
-    #########################
-    ###
-    #
     def startComunication(self, client_addr, client_sock):
+        """
+        comunication with client
+        :param client_addr: client address
+        :param client_sock: client socket
+        """
+        
         client = SocketClient(client_addr, self.protocol)
         self.clients.append(client) 
         client.setDataHandler(self.datahandler)
@@ -379,10 +408,11 @@ class SocketServer(Socket):
         self.clients.remove(client)
         client.close()
 
-    #########################
-    ###
-    #
     def close(self):
+        """
+        close socket
+        """
+        
         super(SocketServer, self).close()
 
         try:
@@ -393,42 +423,40 @@ class SocketServer(Socket):
 
 
 
-############################################
-### socket client                        ###
-############################################
-############################################
-############################################
-#
-### use example:
-# client = SocketClient(("localhost", 1234), SOCKET_TCP)
-# client.initClient()
-# client.send("awesome message")
-# client.keepAlive(True)
-# client.useReplying(True)
-# client.setDataHandler(myawesomehandler(data, from))
-# client.startReceiving()
-#
-# or
-#
-# client = SocketClient((BROADCAST_HOST, 1234), SOCKET_UDP)
-# client.initClient()
-# client.keepAlive(False) #default
-# client.useReplying(False) #default
-# client.send("awesome broadcast message")
-#
-
 class SocketClient(Socket, Connector):
+    """
+    socket client, example:
+    client = SocketClient(("localhost", 1234), SOCKET_TCP) 
+    client.initClient()
+    client.send("awesome message")
+    client.keepAlive(True)
+    client.useReplying(True)
+    client.setDataHandler(myawesomehandler(data, from))
+    client.startReceiving()
+ 
+    or
+  
+    client = SocketClient((BROADCAST_HOST, 1234), SOCKET_UDP)
+    client.initClient()
+    client.keepAlive(False) #default
+    client.useReplying(False) #default
+    client.send("awesome broadcast message")
+    """
 
-    #########################
-    ###
-    #
     def __init__(self, addr=("",None), protocol = SOCKET_TCP):
+        """
+        init socket
+        :pram addr: ("", port) or socket name
+        :pram protocol: SOCKET_TCP or SOCKET_UDP 
+        """
+                
         super(SocketClient, self).__init__(addr, protocol)
 
-    #########################
-    ###
-    #
     def initClient(self):
+        """
+        initialize client socket
+        """
+        
         self.close()
 
         if isinstance(self.addr, tuple) and self.addr[0] == BROADCAST_HOST:
@@ -452,16 +480,16 @@ class SocketClient(Socket, Connector):
 
         return CONST.RET_OK
 
-    #########################
-    ###
-    #
     def setConnectedSocket(self, sock):
+        """
+        set socket if already exists
+        """
         self.sock = sock
 
-    #########################
-    ###
-    #
     def recv(self):
+        """
+        get incomming data
+        """
         (recv_data, addr) = (None, None)
 
         if not self.sock:
@@ -484,10 +512,13 @@ class SocketClient(Socket, Connector):
 
         return (recv_data, addr)
 
-    #########################
-    ###
-    #
     def send(self, data, addr = None):
+        """
+        send data to addr
+        :param data: response data
+        :param addr: to
+        """
+        
         if not addr:
             addr = self.addr
             
@@ -513,10 +544,11 @@ class SocketClient(Socket, Connector):
 
         return CONST.RET_OK
 
-    #########################
-    ###
-    #
     def responseLoop(self):
+        """
+        communication, recv - response loop untile exit data received
+        """
+        
         logger.logDebug("Waiting for message main loop")
 
         while True:
@@ -543,10 +575,11 @@ class SocketClient(Socket, Connector):
             if reply_data in EXIT_DATA:
                 break
 
-    #########################
-    ###
-    #
     def startReceiving(self):
+        """
+        client receiving starter
+        """
+        
         if self.keepalive:
             t_target = self.keepAliveThread
             t_args = (self.initClient, self.responseLoop)

@@ -30,32 +30,25 @@ gtk.gdk.threads_init()
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### GUI interface pluggin                                        ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### plugin main class                    ###
-############################################
-############################################
-############################################
-
 class GUI(plugin.Plugin):
+    """
+    gtk - gui menu
+    """
 
-    #########################
-    ###
-    #
     def init(self):
+        """
+        init - reset items
+        """
+        
         self.items = {}
         
     def run(self):
+        """
+        create gtk systry menu and ask for items
+        """
         
+        self.askForItems()
+                
         try:
             self.systray = gtk.StatusIcon()
             self.systray.set_from_stock(gtk.STOCK_ABOUT)
@@ -63,27 +56,28 @@ class GUI(plugin.Plugin):
             gtk.main()
         except Exception as err:
             logger.logDebug("error: %s", err )
-            
-        self.askForItems()
 
 
-    #########################
-    ###
-    #
     def onRightClick(self, icon, eventbutton, eventtime):
+        """
+        show popup menu on click
+        """
+        
         self.showPopupMenu(eventbutton, eventtime)
         
-    #########################
-    ###
-    #
     def onAskForItems(self, widget):
+        """
+        on ask for items click - call ask for items
+        """
+        
         self.items = {}
         self.askForItems()    
 
-    #########################
-    ###
-    #
     def showPopupMenu(self, eventbutton, eventtime):
+        """
+        create popup menu
+        """
+        
         if not self.items:
             self.askForItems()
             
@@ -95,9 +89,9 @@ class GUI(plugin.Plugin):
         about.show()
         about.connect('activate', self.showAbout)
         
-        #quit = gtk.MenuItem("Quit", False)
-        #quit.show()
-        #quit.connect('activate', gtk.main_quit)
+        quit = gtk.MenuItem("Quit", False)
+        quit.show()
+        quit.connect('activate', gtk.main_quit)
 
         menu =  gtk.Menu()
         for plugin_name in self.items:
@@ -105,14 +99,15 @@ class GUI(plugin.Plugin):
 
         menu.append(reqreload)
         menu.append(about)
-        #menu.append(quit)
+        menu.append(quit)
         
         menu.popup(None, None, gtk.status_icon_position_menu, eventbutton, eventtime, self.systray)
 
-    #########################
-    ###
-    #
-    def showAbout(self, widget):        
+    def showAbout(self, widget):   
+        """
+        show about dialog
+        """
+             
         about = gtk.AboutDialog()        
         about.set_destroy_with_parent(True)
         about.set_icon_name ("ikona")        
@@ -125,10 +120,11 @@ class GUI(plugin.Plugin):
         about.destroy()
         
         
-    #########################
-    ###
-    #
     def createMenu(self, items, cmdpath, menu = None):
+        """
+        create submenu with items
+        """
+        
         if not menu:
             menu =  gtk.Menu()
             
@@ -163,10 +159,10 @@ class GUI(plugin.Plugin):
                       
         return menu
 
-    #########################
-    ###
-    #
     def menuHandler(self, widget, data = None):   
+        """
+        send command on item click
+        """
         
         target = data.split(CONST.DELIMITER)[0]
         cmdstring = CONST.DELIMITER.join(data.split(CONST.DELIMITER)[1:])
@@ -174,10 +170,10 @@ class GUI(plugin.Plugin):
         logger.logDebug("Sending cmd for %s: '%s'" % (target, cmdstring) )
         self.sendCommands([cmdstring], target)
 
-    #########################
-    ###
-    #
     def receiveData(self, data_dict, addr=None):        
+        """
+        data recieved, check if items available
+        """
         
         if "result" in data_dict.keys():
             if data_dict["result"]["type"] == METHOD.ITEMS:
@@ -202,5 +198,3 @@ if __name__ == '__main__':
     
     while True:
         time.sleep(10)
-    
-    
