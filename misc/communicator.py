@@ -522,6 +522,8 @@ class SocketClient(Socket, Connector):
         if not addr:
             addr = self.addr
             
+        logger.logDebug("To '%s' sending data: '%s'" % (str(addr), str(data).strip()))            
+            
         if not self.sock:
             self.initClient() # conection error? try repair...
 
@@ -539,8 +541,6 @@ class SocketClient(Socket, Connector):
         except socket.error as err:
             logger.logError("Sending data failed. Error Code: " + str(err[0]) + ' Message: ' + err[1])
             return CONST.RET_IO_ERROR
-        
-        logger.logDebug("To '%s' sent data: '%s'" % (str(addr), str(data).strip()))
 
         return CONST.RET_OK
 

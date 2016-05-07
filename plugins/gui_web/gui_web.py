@@ -3,6 +3,7 @@
 
 import sys
 import os
+import time
 
 from misc import logger
 from misc import plugin
@@ -120,7 +121,10 @@ class Plugin(plugin.Plugin):
         def POST(self, id):
             id=id.encode('utf-8')
             if (str(id) == "askForItems"):
+                global items
+                items.clear()
                 askForItems()
+                time.sleep(2)
                 
             id = id + CONST.DELIMITER + web.data().encode('utf-8').split("=")[1]
             

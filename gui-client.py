@@ -89,9 +89,9 @@ class GUI(plugin.Plugin):
         about.show()
         about.connect('activate', self.showAbout)
         
-        quit = gtk.MenuItem("Quit", False)
-        quit.show()
-        quit.connect('activate', gtk.main_quit)
+        #quit = gtk.MenuItem("Quit", False)
+        #quit.show()
+        #quit.connect('activate', gtk.main_quit)
 
         menu =  gtk.Menu()
         for plugin_name in self.items:
@@ -99,7 +99,7 @@ class GUI(plugin.Plugin):
 
         menu.append(reqreload)
         menu.append(about)
-        menu.append(quit)
+        #menu.append(quit)
         
         menu.popup(None, None, gtk.status_icon_position_menu, eventbutton, eventtime, self.systray)
 

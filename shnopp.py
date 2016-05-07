@@ -71,19 +71,11 @@ class MainDaemon(daemon.Daemon):
             self.nodes[nodename] = {}
             self.nodes[nodename]["addr"] = addr
             logger.logInfo("New node '%s' discovered" % nodename)
-        """    
-        if not from sockfile - pass to sock file
+            
         """
-        if addr != '':
-            for client in self.passthrough_clients:
-
-                if str(client.addr) == "":
-                    client.sendDictAsJSON(data_dict)
-        
+        if from sockfile - rebroadcast and end
         """
-        if from sockfile - broadcast
-        """
-        if False and addr == '': 
+        if addr == '': 
             conn = communicator.Connector()
             conn.send=self.broadcastData
             conn.sendDictAsJSON(data_dict)
@@ -94,6 +86,15 @@ class MainDaemon(daemon.Daemon):
             if CFG.SOCKET_TCP_ENABLED or CFG.SOCKET_UDP_ENABLED:
                 return communicator.MESSAGE_OK
                         
+        """    
+        if not from sockfile - pass to sock file
+        """
+        if addr != '':
+            for client in self.passthrough_clients:
+
+                if str(client.addr) == "":
+                    client.sendDictAsJSON(data_dict)
+        
         plugins_with_receiver = [key for key in self.plugins.keys() if "receiver" in self.plugins[key].keys()]
 
         status = "noreceiver"
@@ -108,18 +109,6 @@ class MainDaemon(daemon.Daemon):
    
         return status
     
-    def pluginSender(self, data):
-        """
-        pluginSender - sender used by plugins
-        :param data: 
-        """
-        
-        if CFG.SOCKET_UDP_ENABLED:
-            self.broadcastData(data)
-        
-        for client in self.passthrough_clients:
-            client.sendData(data)
-
     def sendDataTo(self, addr, data):
         """
         sendDataTo - TODO: create client and send
@@ -144,8 +133,6 @@ class MainDaemon(daemon.Daemon):
         :param data: 
         """
         
-        logger.logDebug("Broadcasting data: '%s'" % str(data))
-
         broadcast = communicator.SocketClient((communicator.BROADCAST_HOST, CFG.SOCKET_UDP_PORT), communicator.SOCKET_UDP)
         if broadcast.initClient() != CONST.RET_OK:
             logger.logError("Broadcasting data: '%s' failed" % str(data))
@@ -265,7 +252,7 @@ class MainDaemon(daemon.Daemon):
             
             try:
                 plugin["instance"] = plugin["module"].Plugin(plugin_name)
-                plugin["instance"].setSender(self.pluginSender)
+                plugin["instance"].setSender(self.broadcastData)
                 if plugin["instance"].receiverhandler:
                     plugin["receiver"] = plugin["instance"].receiverhandler
                 plugin["ready"] = True
