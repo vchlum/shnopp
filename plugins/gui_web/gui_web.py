@@ -17,21 +17,10 @@ import web
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### WEB interface pluggin                                        ###
-####################################################################
-####################################################################
-####################################################################
-
-############################################
-### plugin main class                    ###
-############################################
-############################################
-############################################
-
 class Plugin(plugin.Plugin):
+    """
+    web gui plugin - http web page 
+    """
 
     urls = (
         '/(js|css|img)/(.+\.js|.+\.png)', 'static',
@@ -42,7 +31,15 @@ class Plugin(plugin.Plugin):
     render = web.template.render(os.path.join(os.path.dirname(__file__), 'gui_web_templates/'), base='base')
     
     class static:
+        """
+        web url
+        """
+                
         def GET(self, media, filename):
+            """
+            get
+            """
+                        
             try:
                 workingdir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui_web_templates")
                 fullfilename = os.path.join(workingdir, media, filename)
@@ -53,10 +50,10 @@ class Plugin(plugin.Plugin):
                 logger.logError(str(err))
                 return ''
 
-    #########################
-    ###
-    #    
     class index:
+        """
+        web url
+        """
         
         buttons = {}
         
@@ -66,10 +63,11 @@ class Plugin(plugin.Plugin):
             web.form.Button(u'\u21BB'),
             )
 
-        ##########
-        ##
-        #        
         def GET(self):
+            """
+            get
+            """
+            
             global items
             
             form = self.form()
@@ -80,23 +78,26 @@ class Plugin(plugin.Plugin):
             for i in self.buttons.keys():
                 keys_friendly_name[i] = (" - ").join(i.split(CONST.DELIMITER)[1:])
                 
-            
             return render.index(CONST.APP_NAME, sorted(self.buttons.keys()), self.buttons, keys_friendly_name, form)
 
-        ##########
-        ##
-        #
         def POST(self):
+            """
+            post
+            """
+            
             form = self.form()
             if not form.validates():
                 # asi k nicemu
                 return render.index({}, form)
             raise web.seeother('/')
 
-        ##########
-        ##
-        #        
         def getforms(self, path, data):
+            """
+            recursively process items, prepare buttons
+            :param path:
+            :param data:
+            """
+            
             for i in data:
                 if isinstance(data[i], dict):
                     new_p = path
@@ -110,15 +111,16 @@ class Plugin(plugin.Plugin):
                     else:
                         self.buttons[path]=[i]
 
-    #########################
-    ###
-    #        
     class action:
-        
-        ##########
-        ##
-        #        
+        """
+        web url
+        """
+
         def POST(self, id):
+            """
+            post
+            """
+            
             id=id.encode('utf-8')
             if (str(id) == "askForItems"):
                 global items
@@ -136,22 +138,24 @@ class Plugin(plugin.Plugin):
 
             raise web.seeother('/')
 
-    #########################
-    ###
-    #
     def init(self):
+        """
+        initialize
+        """
+                
         self.items = {}
 
-    #########################
-    ###
-    #
     def run(self):
+        """
+        plugin main
+        """
+                
         try:
             sys.argv = [sys.argv[0], str(cfg.PORT)]
 
             fvars = globals()
 
-            # rucne podedim
+            # manual inheritance
             for i in [attr for attr in dir(self) if not callable(attr) and not attr.startswith("__")]:
                 fvars[i] = eval('self.' + i)
                  
@@ -161,10 +165,11 @@ class Plugin(plugin.Plugin):
         except Exception as err:
             logger.logError("error starting web: %s" % err )
                     
-    #########################
-    ###
-    #
-    def receiveData(self, data_dict):        
+    def receiveData(self, data_dict):
+        """
+        handle received data
+        :param data_dict: received data
+        """                
         
         if "result" in data_dict.keys():
             if data_dict["result"]["type"] == METHOD.ITEMS:

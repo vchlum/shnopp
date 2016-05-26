@@ -63,12 +63,13 @@ class Plugin(Connector):
             handler = self.receiveData
         self.receiverhandler = handler
 
-    def receiveData(self, data):
+    def receiveData(self, data_dict):
         """
         default receiver function
+        :param data_dict: received data
         """
         
-        logger.logDebug("Input data '%s' not handled" % str(data).strip())
+        logger.logDebug("Input data '%s' not handled" % str(data_dict).strip())
         return CONST.RET_OK
 
     def setSender(self, handler = None):

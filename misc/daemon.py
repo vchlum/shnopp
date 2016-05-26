@@ -107,6 +107,7 @@ class Daemon(object):
         start main process
         if not debug - daemonize
         """
+        
         logger.logInfo("Starting...")
 
         pid = self.status()
@@ -173,6 +174,7 @@ class Daemon(object):
         """
         restart process - stop and start again
         """
+        
         logger.logInfo("Restarting...")
         if self.stop() == CONST.RET_OK:
             return self.start()
@@ -183,5 +185,6 @@ class Daemon(object):
         """
         default main loop - overwrite this
         """
+        
         while True:
             time.sleep(30)

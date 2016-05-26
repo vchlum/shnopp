@@ -22,28 +22,16 @@ except ImportError:
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### LEDs behind my TV                                            ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### plugin main class                    ###
-############################################
-############################################
-############################################
-
 class Plugin(plugin.Plugin):
+    """
+    pi face - LEDs behind my TV
+    """
     
-    #########################
-    ###
-    #
     def init(self):
+        """
+        initialize
+        """
+                
         self.items = cfg.ITEMS
         self.pifacedigital = pifacedigitalio.PiFaceDigital()
 
@@ -52,51 +40,53 @@ class Plugin(plugin.Plugin):
         self.tasker = tasks.Tasks()
         self.tasker.setTaskHandler(self.taskHandler)
      
-    #########################
-    ###
-    #   
     def taskHandler(self, task):
+        """
+        handle task, task is function
+        :param task: function to run
+        """
+        
         task(self)
 
-    ######################################
-    # piface functions (commands)        # 
-    ######################################
-
-    #########################
-    ###
-    #
     def toggle(self, arr):
+        """
+        piface functions (toggle command)
+        :param arr: all items will be handled
+        """
+        
         logger.logDebug("Toggle %s" % str(arr))
         for i in arr:
             if i in cfg.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].toggle()
 
-    #########################
-    ###
-    #
     def turnOn(self, arr):
+        """
+        piface functions (on command)
+        :param arr: all items will be handled
+        """
+        
         logger.logDebug("Turn on %s" % str(arr))
         for i in arr:
             if i in cfg.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].turn_on()
 
-    #########################
-    ###
-    #
     def turnOff(self, arr):
+        """
+        piface functions (off command)
+        :param arr: all items will be handled
+        """
+        
         logger.logDebug("Turn off %s" % str(arr))
         for i in arr:
             if i in cfg.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].turn_off()
 
-    ######################################
-    # event specific functions           # 
-    ######################################
-          
-    #########################
-    ###
-    #    
     def blinkLEDs(self, leds):
+        """
+        event specific functions
+        double blink
+        :param leds: arra of items to blink 
+        """
         tmpvalues = {}
         for led in leds:
             tmpvalues[led] = self.pifacedigital.output_pins[led].value
@@ -108,67 +98,72 @@ class Plugin(plugin.Plugin):
         for led in leds:
             self.pifacedigital.output_pins[led].value = tmpvalues[led]
     
-    #########################
-    ###
-    #        
     def blinkBottomLeft(self):
+        """
+        blink specific led
+        """
+        
         self.blinkLEDs([cfg.OUTPUT_4])
      
-    #########################
-    ###
-    #   
     def blinkBottomRight(self):
+        """
+        blink specific led
+        """
+        
         self.blinkLEDs([cfg.OUTPUT_5])
      
-    #########################
-    ###
-    #   
     def blinkTopLeft(self):
+        """
+        blink specific leds
+        """
+        
         self.blinkLEDs([cfg.OUTPUT_6])
      
-    #########################
-    ###
-    #   
     def blinkTopRight(self):
+        """
+        blink specific leds
+        """
+        
         self.blinkLEDs([cfg.OUTPUT_7])
 
-    #########################
-    ###
-    #
     def turnOnAll(self):
+        """
+        turn on all
+        """
+        
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
         self.turnOn(cfg.OUTPUT_ALL)    
 
-    #########################
-    ###
-    #                          
     def turnOffAll(self):
+        """
+        turn off all
+        """
+        
         self.turnOff(cfg.OUTPUT_ALL)
 
-    #########################
-    ###
-    #
     def turnOnBottom(self):
+        """
+        turn on bottom two
+        """
+              
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
         self.turnOn(cfg.OUTPUT_BOTTOM)  
     
-    #########################
-    ###
-    #                   
     def turnOnTop(self):
+        """
+        turn on top two
+        """
+        
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
         self.turnOn(cfg.OUTPUT_TOP)
 
-    ######################################
-    # receiver and received cmd handlers # 
-    ######################################
-
+    # receiver and received cmd handlers
     cmdhandler = { CMD.ON: turnOn,
                    CMD.OFF: turnOff,
                    CMD.TOGGLE: toggle,
@@ -190,21 +185,18 @@ class Plugin(plugin.Plugin):
                      EVENT.PERSONAL_TIME_TO_SLEEP: turnOffAll,
                    }
 
-    #########################
-    ###
-    #
-    def receiveData(self, data_dict):        
+    def receiveData(self, data_dict):   
+        """
+        handle received data
+        :param data_dict: received data
+        """             
         
-        ##########
-        ## try autoresponse first
-        #         
+        # try autoresponse first    
         self.autoResponder(data_dict)        
         
         if "method" in data_dict.keys():
             
-            ##########
-            ## cmds
-            #                  
+            # cmds
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:
@@ -225,9 +217,7 @@ class Plugin(plugin.Plugin):
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
 
-            ##########
-            ## events
-            #
+            # events
             if data_dict["method"] == METHOD.EVENT:
                 for event in data_dict["params"]["events"]:
 

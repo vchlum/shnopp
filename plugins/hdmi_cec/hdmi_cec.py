@@ -21,23 +21,11 @@ except ImportError:
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### plugin for hdmi-cec devices TV                               ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### plugin main class                    ###
-############################################
-############################################
-############################################
-
 class Plugin(plugin.Plugin):
+    """
+    plugin for hdmi-cec devices TV
+    """
+    
     keymap = {
         0:   uinput.KEY_ENTER,
         1:   uinput.KEY_UP,
@@ -56,10 +44,11 @@ class Plugin(plugin.Plugin):
         116: uinput.KEY_GREEN,
     }
 
-    ######################################
-    # cec-device subclass                # 
-    ######################################
     class Device(object):
+        """
+        cec-device subclass 
+        """
+        
         iAddress = None
         osdName = None
         vendorId = None
@@ -69,17 +58,11 @@ class Plugin(plugin.Plugin):
         active = None        
         libCEC = None
         
-        ##########
-        ##
-        #
         def __init__(self, iAddress, libCEC):
             self.iAddress = iAddress
             self.libCEC = libCEC
             self.detectDevice()
-            
-        ##########
-        ##
-        #
+
         def detectDevice(self):
             try:
                 self.osdName         = self.libCEC.GetDeviceOSDName(self.iAddress)
@@ -90,83 +73,48 @@ class Plugin(plugin.Plugin):
                 self.active          = self.libCEC.IsActiveSource(self.iAddress)    
             except Exception as err:
                 raise Exception("Detecting CEC device error: %s" % str(err) )
-         
-        ##########
-        ##
-        #   
+
         def getOsdName(self):
             return self.osdName
-        
-        ##########
-        ##
-        #
+
         def getVendor(self):
             return self.vendorId
-        
-        ##########
-        ##
-        #
+
         def getVendorString(self):
             return self.libCEC.VendorIdToString(self.vendorId)
 
-        ##########
-        ##
-        #
         def getCecVersion(self):
             return self.cecVersion
-        
-        ##########
-        ##
-        #
+
         def getCecVersionString(self):
             return self.libCEC.CecVersionToString(self.cecVersion)              
-         
-        ##########
-        ##
-        #       
+  
         def getPhysicalAddress(self):
             return self.physicalAddress
-        
-        ##########
-        ##
-        #
+
         def getPowerStatus(self):
             return self.libCEC.GetDevicePowerStatus(self.iAddress)
-        
-        ##########
-        ##
-        #
+
         def getPowerString(self):
             return self.libCEC.PowerStatusToString(self.getPowerStatus())
-        
-        ##########
-        ##
-        #
+
         def isActiveSource(self):
             return self.libCEC.IsActiveSource(self.iAddress)
-        
-        ##########
-        ##
-        #
+
         def isActiveDevice(self):
             return self.libCEC.IsActiveDevice(self.iAddress)
 
-        ##########
-        ##
-        #
         def poweronDevice(self):
             return self.libCEC.PowerOnDevices(self.iAddress)
-        
-        ##########
-        ##
-        #
+
         def standbyDevice(self):
             return self.libCEC.StandbyDevices(self.iAddress)
 
-    #########################
-    ###
-    #
     def init(self):
+        """
+        initialize
+        """
+                
         self.items = cfg.ITEMS
         self.libCEC = {}
         self.uidevice = uinput.Device(self.keymap.values())
@@ -181,10 +129,11 @@ class Plugin(plugin.Plugin):
             self.initlibCEC()
             self.detectDevices()
 
-    #########################
-    ###
-    #
     def __getitem__(self, key):
+        """
+        get device
+        """
+        
         if not key in self.getDevices():
             self.detectDevices()
             
@@ -193,10 +142,12 @@ class Plugin(plugin.Plugin):
         
         return None
     
-    #########################
-    ###
-    #
     def initConfig(self, this_cec_name):
+        """
+        initialize cec config
+        :param this_cec_name: name for this device
+        """
+        
         logger.logDebug("Initializing libCEC config")
 
         try:
@@ -210,10 +161,11 @@ class Plugin(plugin.Plugin):
         except Exception as err:
             logger.logError("Initializing libCEC config error: %s" % str(err) )
 
-    #########################
-    ###
-    #
     def initDefaultCB(self):
+        """
+        initialize default callbacks
+        """
+        
         logger.logDebug("Settings CEC default callbacks")
         self.setLogCallback(self.cecLogCallback)
         self.setKeyPressCallback(self.cecKeyPressCallback)
@@ -221,11 +173,11 @@ class Plugin(plugin.Plugin):
         self.setMenuStateCallback(self.cecMenuStateCallback)
         self.setSourceActivatedCallback(self.cecSourceActivatedCallback)
 
-    #########################
-    ###
-    #
-    # detect an adapter and return the com port path
     def detectAdapter(self):
+        """
+        detect an adapter and return the com port path
+        """
+        
         logger.logDebug("Detecting CEC adapters")
 
         try:
@@ -242,29 +194,30 @@ class Plugin(plugin.Plugin):
             logger.logError("Detecting CEC adapter error: %s" % str(err) )
             return None
 
-    #########################
-    ###
-    #
     def initlibCEC(self):
-            try:
-                self.libCEC = cec.ICECAdapter.Create(self.cecconfig)
-            except Exception as err:
-                logger.logError("Creating CEC adapter error: %s" % str(err) )
+        """
+        initialize hdmi-cec
+        """
+        
+        try:
+            self.libCEC = cec.ICECAdapter.Create(self.cecconfig)
+        except Exception as err:
+            logger.logError("Creating CEC adapter error: %s" % str(err) )
+        adapter = self.detectAdapter()
 
-            adapter = self.detectAdapter()
-
-            if adapter == None:
-                logger.logInfo("No CEC adapters found")
+        if adapter == None:
+            logger.logInfo("No CEC adapters found")
+        else:
+            if self.libCEC.Open(adapter):
+                logger.logInfo("CEC connection opened")
             else:
-                if self.libCEC.Open(adapter):
-                    logger.logInfo("CEC connection opened")
-                else:
-                    logger.logInfo("Failed to open a connection to the CEC adapter")
+                logger.logInfo("Failed to open a connection to the CEC adapter")
 
-    #########################
-    ###
-    #
     def detectDevices(self):
+        """
+        detect hdmi-cec devices
+        """
+        
         logger.logDebug("Detecting CEC devices")
 
         try:
@@ -281,56 +234,68 @@ class Plugin(plugin.Plugin):
         except Exception as err:
             logger.logError("Detecting CEC devices error: %s" % str(err) )
 
-    ######################################
-    # cec-commands                       # 
-    ######################################
-     
-    #########################
-    ###
-    #   
     def standby(self):
+        """
+        cec-command
+        standby
+        """
+        
         return self.libCEC.StandbyDevices()                
      
-    #########################
-    ###
-    #   
     def setActiveSource(self):
+        """
+        cec-command
+        activate source
+        """
+        
         return self.libCEC.SetActiveSource()
      
-    #########################
-    ###
-    #   
     def setInactive(self):
+        """
+        cec-command
+        inactivate source
+        """
+        
         return self.libCEC.SetInactiveView()
     
-    #########################
-    ###
-    #
     def getActiveSource(self):
+        """
+        cec-command
+        get active source
+        """
+                
         return self.libCEC.GetActiveSource()
     
-    #########################
-    ###
-    #
     def getActiveSourceOsdName(self):
+        """
+        cec-command
+        get active source osd name
+        """
+        
         return self.libCEC.GetDeviceOSDName(self.getActiveSource())
     
-    #########################
-    ###
-    #
     def getDeviceOSDName(self, iAddress):
+        """
+        cec-command
+        get osd name from address
+        """
+        
         return self.libCEC.GetDeviceOSDName(iAddress)
     
-    #########################
-    ###
-    #
     def getDevices(self):
+        """
+        cec-command
+        get list of devices
+        """
+        
         return self.devices.keys()
     
-    #########################
-    ###
-    #
     def poweronDevice(self, devicename):
+        """
+        cec-command
+        :param device: device to power on
+        """
+        
         if devicename == cfg.CEC_THIS_DEV:
             self["TV"].poweronDevice()
             self.setActiveSource()            
@@ -338,10 +303,12 @@ class Plugin(plugin.Plugin):
         if self[devicename]:            
             self[devicename].poweronDevice()
      
-    #########################
-    ###
-    #        
     def standbyDevice(self, devicename):
+        """
+        cec-command
+        :param device: device to stand by
+        """
+        
         if devicename == cfg.CEC_THIS_DEV:
             self.setInactive()   
             self.standby()
@@ -349,45 +316,46 @@ class Plugin(plugin.Plugin):
         if self[devicename]:
             self[devicename].standbyDevice()
           
-
-    ######################################
-    # cec-callbacks                      # 
-    ######################################
-
-    #########################
-    ###
-    #
     def setLogCallback(self, callback):
+        """
+        set cec-callback for log
+        """
+        
         self.cecconfig.SetLogCallback(callback)
         
-    #########################
-    ###
-    #
     def setKeyPressCallback(self, callback):
+        """
+        set cec-callback for keypress
+        """
+        
         self.cecconfig.SetKeyPressCallback(callback)
      
-    #########################
-    ###
-    #   
     def setCommandCallback(self, callback):
+        """
+        set cec-callback for command
+        """
+        
         self.cecconfig.SetCommandCallback(callback)
      
-    #########################
-    ###
-    #   
     def setMenuStateCallback(self, callback):
+        """
+        set cec-callback for menu state
+        """
+        
         self.cecconfig.SetMenuStateCallback(callback)
        
-    #########################
-    ###
-    # 
     def setSourceActivatedCallback(self, callback):
+        """
+        set cec-callback for source active
+        """
+        
         self.cecconfig.SetSourceActivatedCallback(callback)
    
-    #########################
-    ###
-    #
     def cecLogCallback(self, level, timestamp, message):
+        """
+        cec-callback for log
+        """
+        
         libCECloglevel_dict = {cec.CEC_LOG_ERROR:   "ERROR",
                                cec.CEC_LOG_WARNING: "WARNING",
                                cec.CEC_LOG_NOTICE:  "NOTICE",
@@ -413,10 +381,11 @@ class Plugin(plugin.Plugin):
                 except Exception as err:
                     logger.logError("error %s" % str(err))
     
-    #########################
-    ###
-    #
     def cecKeyPressCallback(self, keycode, duration):
+        """
+        cec-callback for key press
+        """
+        
         if duration == 0:
             logger.logDebug("[KEY] %s pressed, time: %s" % (str(keycode), str(duration)))
 
@@ -430,42 +399,42 @@ class Plugin(plugin.Plugin):
                     self.uidevice.emit_click(self.keymap[keycode])
                     logger.logDebug("[KEY] code %s emitted" % str(self.keymap[keycode]))
 
-    #########################
-    ###
-    #
     def cecCommandCallback(self, cmd):
+        """
+        cec-callback for command
+        """
+        
         logger.logDebug("[COMMAND] %s" % cmd)
 
-    #########################
-    ###
-    #
     def cecMenuStateCallback(self, state):
+        """
+        cec-callback for menu state
+        """
+        
         logger.logDebug("[MENUSTATE] %s" % str(state))
 
-    #########################
-    ###
-    #
     def cecSourceActivatedCallback(self, logicalAddress, activated):
+        """
+        cec-callback for activated source
+        """
+        
         logger.logDebug("[SOURCEACTIVATED] %s:%s active source: %s" % (str(logicalAddress), str(activated), self.GetActiveSourceOsdName()))
         self.sendEvents(EVENT.CEC_ACTIVESOURCE_TEMPLATE % str(activated))
 
-    ######################################
-    # event specific functions           # 
-    ######################################
-    
-    #########################
-    ###
-    #    
     def poweronThisDev(self):
+        """
+        event specific functions
+        """
+        
         self.poweronDevice(cfg.CEC_THIS_DEV)
         self["TV"].poweronDevice()
         self.setActiveSource()
         
-    #########################
-    ###
-    #          
     def standbyIfNobodyElse(self):
-
+        """
+        event specific functions
+        """
+        
         for device in self.getDevices():
             if device != cfg.CEC_THIS_DEV and self[device].isActiveSource():
                 return # if somebody else is active dont poweroff
@@ -473,20 +442,16 @@ class Plugin(plugin.Plugin):
         self.setInactive()
         self["TV"].standbyDevice()
 
-    #########################
-    ###
-    #          
     def standbyAllAnyway(self):
+        """
+        event specific functions
+        """
+        
         self.setInactive()
 
         for device in self.getDevices():
             self[device].standbyDevice()
         
-
-    ######################################
-    # receiver and received cmd handlers # 
-    ######################################
-
     cmdhandler = { CMD.POWERON: poweronDevice,
                    CMD.STANDBY: standbyDevice,
                   }
@@ -499,22 +464,19 @@ class Plugin(plugin.Plugin):
                      EVENT.PERSONAL_TIME_TO_SLEEP: standbyAllAnyway,
                    }    
     
-    #########################
-    ###
-    #
     # example:  mydata  = '{"cmd":{"PlayStation 4:poweron", "TV:poweron"}}'
     def receiveData(self, data_dict):
-
-        ##########
-        ## try autoresponse first
-        #  spreding items, events       
+        """
+        handle received data
+        :param data_dict: received data
+        """             
+        
+        # try autoresponse first
         self.autoResponder(data_dict)        
         
         if "method" in data_dict.keys():
             
-            ##########
-            ## cmds
-            #             
+            # cmds
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:                  
@@ -525,9 +487,7 @@ class Plugin(plugin.Plugin):
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
                         
-            ##########
-            ## events
-            #                              
+            # events
             if data_dict["method"] == METHOD.EVENT:
                 for event in data_dict["params"]["events"]:
 

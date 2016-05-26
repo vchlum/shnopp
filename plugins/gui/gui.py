@@ -20,31 +20,22 @@ gtk.gdk.threads_init()
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### GUI interface pluggin                                        ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### plugin main class                    ###
-############################################
-############################################
-############################################
-
 class Plugin(plugin.Plugin):
-
-    #########################
-    ###
-    #
+    """
+    gtk gui plugin - systry menu 
+    """
+    
     def init(self):
+        """
+        initialize
+        """
+                
         self.items = {}
         
     def run(self):
+        """
+        plugin main
+        """
         
         try:
             self.systray = gtk.StatusIcon()
@@ -56,23 +47,33 @@ class Plugin(plugin.Plugin):
             
         self.askForItems()
 
-
-    #########################
-    ###
-    #
     def onRightClick(self, icon, eventbutton, eventtime):
+        """
+        on right click on systry icon
+        :param icon:
+        :param eventbutton:
+        :param eventtime:
+        """
+                
         self.showPopupMenu(eventbutton, eventtime)
         
-    #########################
-    ###
-    #
     def onAskForItems(self, widget):
+        """
+        event handlet
+        just consume the useless widget param
+        :param widget:
+        """
+        
         self.askForItems()    
 
-    #########################
-    ###
-    #
     def showPopupMenu(self, eventbutton, eventtime):
+        """
+        show (and also create) systry menu
+        assemble menu items
+        :param eventbutton:
+        :param eventtime:
+        """
+        
         if not self.items:
             self.askForItems()
             
@@ -98,10 +99,12 @@ class Plugin(plugin.Plugin):
         
         menu.popup(None, None, gtk.status_icon_position_menu, eventbutton, eventtime, self.systray)
 
-    #########################
-    ###
-    #
-    def showAbout(self, widget):        
+    def showAbout(self, widget):
+        """
+        about dialog
+        :param widget:
+        """
+                        
         about = gtk.AboutDialog()        
         about.set_destroy_with_parent(True)
         about.set_icon_name ("ikona")        
@@ -114,10 +117,14 @@ class Plugin(plugin.Plugin):
         about.destroy()
         
         
-    #########################
-    ###
-    #
     def createMenu(self, items, cmdpath, menu = None):
+        """
+        create main menu and recursively submenus
+        :param items: subtree with remaining items to create
+        :param cmdpath: items full string
+        :param menu: already created
+        """
+                
         if not menu:
             menu =  gtk.Menu()
             
@@ -152,22 +159,25 @@ class Plugin(plugin.Plugin):
                       
         return menu
 
-    #########################
-    ###
-    #
     def menuHandler(self, widget, data = None):   
-        
+        """
+        handle data when menu item used
+        :param widget: 
+        :param data: full item string
+        """
+                
         target = data.split(CONST.DELIMITER)[0]
         cmdstring = CONST.DELIMITER.join(data.split(CONST.DELIMITER)[1:])
         
         logger.logDebug("Sending cmd for %s: '%s'" % (target, cmdstring) )
         self.sendCommands([cmdstring], target)
 
-    #########################
-    ###
-    #
     def receiveData(self, data_dict):        
-        
+        """
+        handle received data
+        :param data_dict: received data
+        """
+
         if "result" in data_dict.keys():
             if data_dict["result"]["type"] == METHOD.ITEMS:
                 target = data_dict["result"]["plugin"]

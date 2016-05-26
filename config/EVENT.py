@@ -22,8 +22,7 @@ CEC_ACTIVESOURCE_PLAYSTATION_4 =     CEC_ACTIVESOURCE_TEMPLATE % "PlayStation 4"
 CEC_KEYRELEASED_TEMPLATE = "cec-keyreleased" + CONST.DELIMITER + "%i" + CONST.DELIMITER + "%i"
            
 ### kodi ###
-          
-          
+
 KODI_PLAYBACK_STARTED_TEMPLATE =                 "kodi %s playback started"
 KODI_PLAYBACK_PAUSED_TEMPLATE =                  "kodi %s playback paused"
 KODI_PLAYBACK_RESUMED_TEMPLATE =                 "kodi %s playback resumed"

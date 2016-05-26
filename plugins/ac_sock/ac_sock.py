@@ -22,28 +22,16 @@ except ImportError:
 
 
 
-####################################################################
-####################################################################
-####################################################################
-### AC sockets pluggin                                           ###
-####################################################################
-####################################################################
-####################################################################
-
-
-
-############################################
-### plugin main class                    ###
-############################################
-############################################
-############################################
-
 class Plugin(plugin.Plugin):
-
-    #########################
-    ###
-    #
+    """
+    plugin for remote ac sockets 
+    """
+    
     def init(self):
+        """
+        initialize
+        """
+                
         self.items = cfg.ITEMS
         self.ac_socks = pi_switch.RCSwitchSender()
         self.ac_socks.enableTransmit(0)
@@ -54,10 +42,12 @@ class Plugin(plugin.Plugin):
         self.tasker = tasks.Tasks()
         self.tasker.setTaskHandler(self.transmitCode)
 
-    #########################
-    ###
-    #
     def transmitCode(self, code):
+        """
+        transmit code using pi_switch
+        :param code: code to transmit
+        """
+        
         try:
             logger.logDebug("Transmitting code: %s" % str(code))
             self.ac_socks.send(code)
@@ -65,37 +55,38 @@ class Plugin(plugin.Plugin):
         except Exception as err:
             logger.logError("Transmitting AC socket code error: %s" % str(err))
 
-    ######################################
-    # event specific functions           # 
-    ######################################
-
-    #########################
-    ###
-    #
     def morningLight(self):
+        """
+        event specific function
+        never used yet
+        """
+        
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
         
+        code = self.items[cfg.AC_SOCK_1][cfg.AC_SOCK_1_1][CMD.ON]
+        self.tasker.putTask(code)
+
         code = self.items[cfg.AC_SOCK_1][cfg.AC_SOCK_1_2][CMD.ON]
         self.tasker.putTask(code)
 
-        code = self.items[cfg.AC_SOCK_1][cfg.AC_SOCK_1_3][CMD.ON]
-        self.tasker.putTask(code)
-
-    #########################
-    ###
-    #
     def iWannaDarkness(self):
+        """
+        event specific function
+        turn off all
+        """
+        
         for place in self.items.keys():
             if cfg.AC_SOCK_ALL in self.items[place]:
                 code = self.items[place][cfg.AC_SOCK_ALL][CMD.OFF]
                 self.tasker.putTask(code)
 
-    #########################
-    ###
-    #
     def lightLighting(self):
+        """
+        event specific function
+        """
+        
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
@@ -103,24 +94,21 @@ class Plugin(plugin.Plugin):
         code = self.items[cfg.AC_SOCK_2][cfg.AC_SOCK_2_2][CMD.ON]
         self.tasker.putTask(code)
 
-    #########################
-    ###
-    #
     def goForBeerLighting(self):
+        """
+        event specific function
+        """
+        
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
         
         ac_sockets_to_on = [(cfg.AC_SOCK_2, cfg.AC_SOCK_2_2, CMD.ON), 
-                            (cfg.AC_SOCK_2, cfg.AC_SOCK_2_3, CMD.ON)]
+                            (cfg.AC_SOCK_3, cfg.AC_SOCK_2_4, CMD.ON)]
 
         for (place, ac_sock, sockcmd) in ac_sockets_to_on:
             code = self.items[place][ac_sock][sockcmd]
             self.tasker.putTask(code)
-
-    ######################################
-    # receiver and received cmd handlers # 
-    ######################################
 
     eventhandler = { EVENT.KODI_PLAYBACK_STARTED_TEMPLATE % CONST.HOSTNAME: iWannaDarkness,
                      EVENT.KODI_PLAYBACK_PAUSED_TEMPLATE % CONST.HOSTNAME:  goForBeerLighting,
@@ -135,21 +123,18 @@ class Plugin(plugin.Plugin):
                      EVENT.PERSONAL_TIME_TO_SLEEP: iWannaDarkness,
                    }
 
-    #########################
-    ###
-    #
     def receiveData(self, data_dict):     
-        
-        ##########
-        ## try autoresponse first
-        #         
+        """
+        handle received data
+        :param data_dict: received data
+        """
+           
+        # try autoresponse first    
         self.autoResponder(data_dict)
                 
         if "method" in data_dict.keys():
             
-            ##########
-            ## cmds
-            #                  
+            # cmds
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:
@@ -162,9 +147,7 @@ class Plugin(plugin.Plugin):
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
 
-            ##########
-            ## events
-            #
+            # events
             if data_dict["method"] == METHOD.EVENT:
                 for event in data_dict["params"]["events"]:
 

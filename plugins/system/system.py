@@ -43,21 +43,18 @@ class Plugin(plugin.Plugin):
 
     def receiveData(self, data_dict):        
         """
-        receive data and if thata for me, use event handler
+        handle received data
+        :param data_dict: received data
         """
         
         myhostname = socket.gethostname()
         
-        ##########
-        ## try autoresponse first
-        #         
+        # try autoresponse first
         self.autoResponder(data_dict)
 
         if "method" in data_dict.keys():
 
-            ##########
-            ## cmds
-            #                  
+            # cmds
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:

@@ -10,16 +10,17 @@ CEC_LOG_TO_DEFAULT_LOG = False
 CEC_DEV1="TV"
 CEC_DEV2=CONST.HOSTNAME[:12]
 CEC_DEV3="PlayStation 4"
-CEC_DEV4="Chromecast"
+CEC_DEV4="GoogleCast"
 
 CEC_THIS_DEV=CEC_DEV2
 
+ITEMS_CMD = {CMD.POWERON: None, CMD.STANDBY: None}
 
-
-CEC_DEV =  {"Obývák": {"TV stěna": { CEC_DEV1:  {CMD.POWERON: None, CMD.STANDBY: None},
-              CEC_DEV2:  {CMD.POWERON: None, CMD.STANDBY: None},
-              CEC_DEV3:  {CMD.POWERON: None, CMD.STANDBY: None},
-              CEC_DEV4:  {CMD.POWERON: None, CMD.STANDBY: None}, 
+CEC_DEV =  {"Obývák": {"TV stěna": {
+            CEC_DEV1: ITEMS_CMD,
+            CEC_DEV2: ITEMS_CMD,
+            CEC_DEV3: ITEMS_CMD,
+            CEC_DEV4: ITEMS_CMD, 
 }}}
 
 ITEMS              = CEC_DEV
