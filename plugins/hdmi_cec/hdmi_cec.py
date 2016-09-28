@@ -13,8 +13,10 @@ from config import EVENT
 from config import METHOD
 
 import cfg
+import sys
 
 try:
+    sys.path.append('/usr/osmc/lib/python2.7/dist-packages/')
     import cec
 except ImportError:
     raise Exception('Importing cec failed!')
