@@ -390,11 +390,11 @@ class Plugin(plugin.Plugin):
         
         if duration == 0:
             logger.logDebug("[KEY] %s pressed, time: %s" % (str(keycode), str(duration)))
+            self.sendEvents(EVENT.CEC_KEYPRESSED_TEMPLATE % keycode)
 
         if duration > 0:
             logger.logDebug("[KEY] %s released, time: %s" % (str(keycode), str(duration)))
-
-            self.sendEvents(EVENT.CEC_KEYRELEASED_TEMPLATE % (keycode, duration))
+            self.sendEvents(EVENT.CEC_KEYRELEASED_TEMPLATE % keycode)
 
             if keycode in self.keymap.keys():
                 if hasattr(cfg, 'EMIT_REMOTECONTROL_KEYS') and cfg.EMIT_REMOTECONTROL_KEYS:

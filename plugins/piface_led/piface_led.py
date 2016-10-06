@@ -59,6 +59,27 @@ class Plugin(plugin.Plugin):
             if i in cfg.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].toggle()
 
+    def toggleall(self):
+        """
+        piface functions (toggle all)
+        """
+        
+        self.toggle(cfg.OUTPUT_ALL)
+        
+    def toggleBottom(self):
+        """
+        toggle on bottom two
+        """
+              
+        self.toggle(cfg.OUTPUT_BOTTOM)  
+    
+    def toggleTop(self):
+        """
+        toggle on top two
+        """ 
+        
+        self.toggle(cfg.OUTPUT_TOP)  
+
     def turnOn(self, arr):
         """
         piface functions (on command)
@@ -183,6 +204,11 @@ class Plugin(plugin.Plugin):
                      EVENT.KODI_SCREENSAVER_DEACTIVATED_TEMPLATE % CONST.HOSTNAME: turnOnTop,
 
                      EVENT.PERSONAL_TIME_TO_SLEEP: turnOffAll,
+
+                     EVENT.CEC_KEYPRESSED_TEMPLATE % 113: turnOffAll,
+                     EVENT.CEC_KEYPRESSED_TEMPLATE % 114: toggleall,
+                     EVENT.CEC_KEYPRESSED_TEMPLATE % 115: toggleTop,
+                     EVENT.CEC_KEYPRESSED_TEMPLATE % 116: toggleBottom,
                    }
 
     def receiveData(self, data_dict):   

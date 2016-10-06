@@ -121,6 +121,8 @@ class Plugin(plugin.Plugin):
 
                      EVENT.PERSONAL_TIME_TO_WAKEUP: morningLight,
                      EVENT.PERSONAL_TIME_TO_SLEEP: iWannaDarkness,
+                     
+                     EVENT.CEC_KEYPRESSED_TEMPLATE % 113: iWannaDarkness,
                    }
 
     def receiveData(self, data_dict):     
