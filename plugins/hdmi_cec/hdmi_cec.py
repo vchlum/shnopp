@@ -16,7 +16,7 @@ import cfg
 import sys
 
 try:
-    sys.path.append('/usr/osmc/lib/python2.7/dist-packages/')
+    sys.path.append('/usr/osmc/lib/python2.7/site-packages/')
     import cec
 except ImportError:
     raise Exception('Importing cec failed!')
