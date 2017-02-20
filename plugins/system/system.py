@@ -34,7 +34,7 @@ class Plugin(plugin.Plugin):
         """
         run the command
         """
-        
+        logger.logInfo("Running command '%s'" % cmd)
         os.system(cmd) 
 
     eventhandler = { 
