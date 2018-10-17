@@ -79,10 +79,15 @@ def closestdIO():
     os.dup2(se.fileno(), sys.stderr.fileno())
 
 def logData(data):
+    try:
+        basestring
+    except NameError:
+        basestring = str # we are python3
+
     if isinstance(data, basestring):
-        print data
+        print (data)
     else:
-        print "[%s] %s: %s" % data
+        print ("[%s] %s: %s" % data)
 
 def logInfo(data):
     """

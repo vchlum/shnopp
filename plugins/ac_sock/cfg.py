@@ -31,7 +31,7 @@ AC_SOCK_3_3 =   "nic"
 AC_SOCK_3_4 =   "nic"
 
 
-
+MY_PLACES = [AC_SOCK_2, AC_SOCK_3]
 
 
 AC_SOCK = {

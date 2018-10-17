@@ -64,7 +64,10 @@ class Plugin(plugin.Plugin):
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
-        
+
+        if not cfg.AC_SOCK_1 in cfg.MY_PLACES:
+            return
+
         code = self.items[cfg.AC_SOCK_1][cfg.AC_SOCK_1_1][CMD.ON]
         self.tasker.putTask(code)
 
@@ -78,6 +81,9 @@ class Plugin(plugin.Plugin):
         """
         
         for place in self.items.keys():
+            if not place in cfg.MY_PLACES:
+                continue
+
             if cfg.AC_SOCK_ALL in self.items[place]:
                 code = self.items[place][cfg.AC_SOCK_ALL][CMD.OFF]
                 self.tasker.putTask(code)
@@ -90,7 +96,10 @@ class Plugin(plugin.Plugin):
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
-        
+
+        if not cfg.AC_SOCK_2 in cfg.MY_PLACES:
+            return
+
         code = self.items[cfg.AC_SOCK_2][cfg.AC_SOCK_2_2][CMD.ON]
         self.tasker.putTask(code)
 
@@ -107,6 +116,9 @@ class Plugin(plugin.Plugin):
                             (cfg.AC_SOCK_3, cfg.AC_SOCK_2_4, CMD.ON)]
 
         for (place, ac_sock, sockcmd) in ac_sockets_to_on:
+            if not place in cfg.MY_PLACES:
+                continue
+
             code = self.items[place][ac_sock][sockcmd]
             self.tasker.putTask(code)
 
@@ -141,6 +153,9 @@ class Plugin(plugin.Plugin):
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:
                         path = self.items
+                        if not cmdstring.split(CONST.DELIMITER)[0] in cfg.MY_PLACES:
+                            continue
+
                         for p in cmdstring.split(CONST.DELIMITER):
                             path = path[p]
                             

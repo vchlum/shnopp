@@ -14,7 +14,10 @@ from config import CMD
 from config import METHOD
 
 from misc import logger
-from __builtin__ import dict
+try:
+    from __builtin__ import dict
+except:
+    from builtins import dict # python3
 
 SOCKET_TCP = socket.SOCK_STREAM
 SOCKET_UDP = socket.SOCK_DGRAM
