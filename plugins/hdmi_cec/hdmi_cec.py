@@ -481,7 +481,9 @@ class Plugin(plugin.Plugin):
             # cmds
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
-                    try:                  
+                    try:
+                        if not cmdstring.split(CONST.DELIMITER)[0] in cfg.CEC_DEV.keys():
+                            return # it is not my device
 
                         [item, command] = cmdstring.split(CONST.DELIMITER)[-2:]
                         
