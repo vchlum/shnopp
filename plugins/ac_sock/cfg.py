@@ -21,7 +21,7 @@ AC_SOCK_2 =     "Obývák"
 AC_SOCK_2_1 =   "Lampa"
 AC_SOCK_2_2 =   "Pohovka"
 AC_SOCK_2_3 =   "nic"
-AC_SOCK_2_4 =   "Osvětlení lednice"
+AC_SOCK_2_4 =   "Linka"
 
 AC_SOCK_3 =     "Kuchyň"
 
