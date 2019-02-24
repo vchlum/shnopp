@@ -14,8 +14,7 @@ from config import CONST
 from config import CMD
 from config import EVENT
 from config import METHOD
-
-import cfg
+from config import CFG
 
 try:
     from rpi_rf import RFDevice
@@ -59,7 +58,7 @@ class Plugin(plugin.Plugin):
                 logger.logDebug("rf433_receive code: %s length %s protocol: %s" % (str(self.rfdevice.rx_code), str(self.rfdevice.rx_pulselength), str(self.rfdevice.rx_proto)))
                 self.sendEvents(EVENT.RF433_PRESSED % self.rfdevice.rx_code)
 
-            time.sleep(cfg.SLEEP_INTERVAL)
+            time.sleep(CFG.SLEEP_INTERVAL)
 
         rfdevice.cleanup()
 

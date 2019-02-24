@@ -1,29 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- 
+import socket
 
 from config import CONST
-
-
+from config import CMD
 
 ### general about ###
-
 OWNER_NAME = "Váša"
 OWNER_EMAIL = "chlumskyvaclav@gmail.com"
 LOCATION = "Brno"
 
-
-
 ### general ###
-
 DIR_RUN = "/tmp/" + CONST.APP_SHORT_NAME + "/"
 DIR_VAR = "/tmp/" + CONST.APP_SHORT_NAME + "/"
-
 PID_FILE = DIR_RUN + CONST.APP_SHORT_NAME.lower() + ".pid"
 
 
 
 ### socket ###
-
 SOCKET_TCP_ENABLED = True
 SOCKET_TCP_HOSTNAME = ""
 SOCKET_TCP_PORT = 54862
@@ -38,11 +32,200 @@ SOCKET_UNIX_ENABLED = True
 SOCKET_UNIX_FILE = DIR_RUN + CONST.APP_SHORT_NAME.lower() + ".sock"
 SOCKET_UNIX_ENABLE_REPLY = True
 
-
-
 ### loging ###
-
 LOG_FILE = DIR_VAR + CONST.APP_SHORT_NAME.lower() + ".log"
 #LOG_FORMAT = "%(asctime)s %(name)s [%(levelname)s] %(message)s"
 LOG_FORMAT = "%(asctime)s %(name)s %(message)s"
 #LOG_LEVEL = logging.DEBUG
+
+###############
+### plugins ###
+###############
+
+### ac_sock ###
+MIN_TRNASMIT_INTERVAL = 0.815
+
+AC_SOCK_ALL = "Vše"
+
+AC_SOCK_1 =     "Ložnice"
+
+AC_SOCK_1_1 =   "Postel"
+AC_SOCK_1_2 =   "Lampička"
+AC_SOCK_1_3 =   "LED za TV"
+AC_SOCK_1_4 =   "nic"
+
+AC_SOCK_2 =     "Obývák"
+
+AC_SOCK_2_1 =   "Lampa"
+AC_SOCK_2_2 =   "Pohovka"
+AC_SOCK_2_3 =   "nic"
+AC_SOCK_2_4 =   "nic"
+
+AC_SOCK_3 =     "Kuchyň"
+
+AC_SOCK_3_1 =   "Linka"
+AC_SOCK_3_2 =   "nic"
+AC_SOCK_3_3 =   "nic"
+AC_SOCK_3_4 =   "nic"
+
+MY_PLACES = [AC_SOCK_2, AC_SOCK_3]
+
+AC_SOCK = {
+    AC_SOCK_1: { AC_SOCK_1_1: {CMD.ON: "11111010001010001000111111011001", CMD.OFF: "11111010001010001000011111010101"},
+                 AC_SOCK_1_2: {CMD.ON: "11111010001010001000101111011101", CMD.OFF: "11111010001010001000001111010011"},
+                 AC_SOCK_1_3: {CMD.ON: "11111010001010001000110111011011", CMD.OFF: "11111010001010001000010111010111"},
+                 AC_SOCK_ALL: {CMD.ON: "11111010001010001000010011010110", CMD.OFF: "11111010001010001000100011011110"},
+               },
+
+    AC_SOCK_2: { AC_SOCK_2_1: {CMD.ON:"01101110110110110000111101111101", CMD.OFF: "01101110110110110000011101110011"},
+                 AC_SOCK_2_2: {CMD.ON:"01101110110110110000101101111011", CMD.OFF: "01101110110110110000001101110111"},
+                 AC_SOCK_ALL: {CMD.ON:"01101110110110110000010001110001", CMD.OFF: "01101110110110110000100001111001"},
+               },
+           
+    AC_SOCK_3: { AC_SOCK_3_1: {CMD.ON:"01011101101100110000111100010001", CMD.OFF: "01011101101100110000011100011001"},
+               },
+}
+
+ITEMS_AC_SOCK              = AC_SOCK
+
+### items backup TE89TP16N ###
+BACKUP_AC_SOCK = {
+    AC_SOCK_1: { AC_SOCK_1_1: {CMD.ON: "11111010001010001000111111011001", CMD.OFF: "11111010001010001000011111010101"},
+                 AC_SOCK_1_2: {CMD.ON: "11111010001010001000101111011101", CMD.OFF: "11111010001010001000001111010011"},
+                 AC_SOCK_1_3: {CMD.ON: "11111010001010001000110111011011", CMD.OFF: "11111010001010001000010111010111"},
+                 AC_SOCK_1_4: {CMD.ON: "11111010001010001000111011011000", CMD.OFF: "11111010001010001000011011010100"},
+                 AC_SOCK_ALL: {CMD.ON: "11111010001010001000010011010110", CMD.OFF: "11111010001010001000100011011110"},
+               },
+
+    AC_SOCK_2: { AC_SOCK_2_1: {CMD.ON:"01101110110110110000111101111101", CMD.OFF: "01101110110110110000011101110011"},
+                 AC_SOCK_2_2: {CMD.ON:"01101110110110110000101101111011", CMD.OFF: "01101110110110110000001101110111"},
+                 AC_SOCK_2_3: {CMD.ON:"01101110110110110000110101111111", CMD.OFF: "01101110110110110000010101110000"},
+                 AC_SOCK_2_4: {CMD.ON:"01101110110110110000111001111100", CMD.OFF: "01101110110110110000011001110010"},
+                 AC_SOCK_ALL: {CMD.ON:"01101110110110110000010001110001", CMD.OFF: "01101110110110110000100001111001"},
+               },
+           
+    AC_SOCK_3: { AC_SOCK_3_1: {CMD.ON:"01011101101100110000111100010001", CMD.OFF: "01011101101100110000011100011001"},
+                 AC_SOCK_3_2: {CMD.ON:"01011101101100110000101100010101", CMD.OFF: "01011101101100110000001100011101"},
+                 AC_SOCK_3_3: {CMD.ON:"01011101101100110000110100010011", CMD.OFF: "01011101101100110000010100011011"},
+                 AC_SOCK_3_4: {CMD.ON:"01011101101100110000111000010000", CMD.OFF: "01011101101100110000011000011000"},
+                 AC_SOCK_ALL: {CMD.ON:"01011101101100110000010000011010", CMD.OFF: "01011101101100110000100000010110"},
+               },
+}
+
+### gui_web ###
+PORT = 80
+
+### hdmi_cec ###
+EMIT_REMOTECONTROL_KEYS = False
+CEC_LOG_TO_DEFAULT_LOG = False
+
+CEC_DEV1="TV"
+CEC_DEV2=CONST.HOSTNAME[:12]
+CEC_DEV3="PlayStation 4"
+CEC_DEV4="Chromecast"
+CEC_DEV5="HT-RT4"
+
+CEC_THIS_DEV=CEC_DEV2
+
+ITEMS_CMD = {CMD.POWERON: None, CMD.STANDBY: None}
+
+CEC_DEV =  {"Obývák": {"TV stěna": {
+            CEC_DEV1: ITEMS_CMD,
+            CEC_DEV2: ITEMS_CMD,
+            CEC_DEV3: ITEMS_CMD,
+            CEC_DEV4: ITEMS_CMD,
+            CEC_DEV5: ITEMS_CMD,  
+}}}
+
+ITEMS_CEC_DEV              = CEC_DEV
+
+### piface_led ###
+
+LEFT_BOTTOM  = "Levá spodní"
+RIGHT_BOTTOM = "Pravá spodní"
+LEFT_TOP     = "Levá vrchní"
+RIGHT_TOP    = "Pravá vrchní"
+BOTTOM       = "Spodní řada"
+TOP          = "Vrchní řada"
+ALL          = "Vše"
+
+OUTPUT_4   = 4
+OUTPUT_5   = 5
+OUTPUT_6   = 6
+OUTPUT_7   = 7
+
+OUTPUT_ALL               = [OUTPUT_4, OUTPUT_5, OUTPUT_6, OUTPUT_7]
+OUTPUT_BOTTOM            = [OUTPUT_4, OUTPUT_5]
+OUTPUT_TOP               = [OUTPUT_6, OUTPUT_7]
+OUTPUT_CLOCKWISE         = [OUTPUT_4, OUTPUT_6, OUTPUT_7, OUTPUT_5]
+OUTPUT_COUNTER_CLOCKWISE = list(reversed(OUTPUT_CLOCKWISE))
+
+PIFACE_LED =   {"Obývák":{"TV stěna": {"Podsvícení":{ 
+                 LEFT_BOTTOM:  {CMD.ON: OUTPUT_4,      CMD.OFF: OUTPUT_4,      CMD.TOGGLE: OUTPUT_4},
+                 RIGHT_BOTTOM: {CMD.ON: OUTPUT_5,      CMD.OFF: OUTPUT_5,      CMD.TOGGLE: OUTPUT_5},
+                 LEFT_TOP:     {CMD.ON: OUTPUT_6,      CMD.OFF: OUTPUT_6,      CMD.TOGGLE: OUTPUT_6},
+                 RIGHT_TOP:    {CMD.ON: OUTPUT_7,      CMD.OFF: OUTPUT_7,      CMD.TOGGLE: OUTPUT_7},
+
+                 BOTTOM:       {CMD.ON: OUTPUT_BOTTOM, CMD.OFF: OUTPUT_BOTTOM, CMD.TOGGLE: OUTPUT_BOTTOM},
+                 TOP:          {CMD.ON: OUTPUT_TOP,    CMD.OFF: OUTPUT_TOP,    CMD.TOGGLE: OUTPUT_TOP},
+
+                 ALL:          {CMD.ON: OUTPUT_ALL,    CMD.OFF: OUTPUT_ALL,    CMD.TOGGLE: OUTPUT_ALL},
+}}}}
+
+ITEMS_PIFACE_LED              = PIFACE_LED
+
+### rf433_receive ###
+SLEEP_INTERVAL = 0.03
+
+### system ###
+POWEROFF = "Vypnout"
+REBOOT   = "Restart"
+RESTART_KODI   = "RestartKODI"
+SYSTEM_TAG   = "Dostupné systémy"
+
+SYSTEM =   {socket.gethostname(): {
+                 POWEROFF:  "sudo /sbin/shutdown -P now",
+                 REBOOT:  "sudo /sbin/shutdown -r now",
+                 RESTART_KODI:  "sudo /bin/systemctl restart mediacenter",
+}}
+
+ITEMS_SYSTEM              = SYSTEM
+
+### tuya ###
+ROOM1 =     "Ložnice"
+
+TUYA_1_1 =   "Lampička"
+TUYA_1_2 =   "Postel L"
+TUYA_1_3 =   "Postel P"
+
+ROOM2 =     "Obývák"
+TUYA_2_1 =   "Lampa L"
+TUYA_2_2 =   "Lampa P"
+
+ROOM3 =     "Kuchyně"
+TUYA_3_1 =   "Linka"
+
+ROOM4 = "Pracovna"
+TUYA_4_1 =   "Lampa"
+
+
+TUYA = {
+    ROOM1: { TUYA_1_1:  {CMD.ON:('',True), CMD.OFF:('',False)},
+
+               },
+
+
+}
+
+ITEMS_TUYA              = TUYA
+
+# ID IP KEY NAME
+DEVICES= { '1': ('2', '',  'Lampa'),
+
+}
+
+RF433 = {
+         'a':('', True), '':('b', False), #all hoste
+}
+
+

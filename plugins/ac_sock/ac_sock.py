@@ -12,8 +12,7 @@ from config import CONST
 from config import CMD
 from config import EVENT
 from config import METHOD
-
-import cfg
+from config import CFG
 
 try:
     import pi_switch
@@ -32,7 +31,7 @@ class Plugin(plugin.Plugin):
         initialize
         """
                 
-        self.items = cfg.ITEMS
+        self.items = CFG.ITEMS_AC_SOCK
         self.ac_socks = pi_switch.RCSwitchSender()
         self.ac_socks.enableTransmit(0)
         self.ac_socks.setProtocol(1)
@@ -51,7 +50,7 @@ class Plugin(plugin.Plugin):
         try:
             logger.logDebug("Transmitting code: %s" % str(code))
             self.ac_socks.send(code)
-            time.sleep(cfg.MIN_TRNASMIT_INTERVAL)
+            time.sleep(CFG.MIN_TRNASMIT_INTERVAL)
         except Exception as err:
             logger.logError("Transmitting AC socket code error: %s" % str(err))
 
@@ -65,13 +64,13 @@ class Plugin(plugin.Plugin):
             logger.logDebug("Doing nothing due to day time.")
             return
 
-        if not cfg.AC_SOCK_1 in cfg.MY_PLACES:
+        if not CFG.AC_SOCK_1 in CFG.MY_PLACES:
             return
 
-        code = self.items[cfg.AC_SOCK_1][cfg.AC_SOCK_1_1][CMD.ON]
+        code = self.items[CFG.AC_SOCK_1][CFG.AC_SOCK_1_1][CMD.ON]
         self.tasker.putTask(code)
 
-        code = self.items[cfg.AC_SOCK_1][cfg.AC_SOCK_1_2][CMD.ON]
+        code = self.items[CFG.AC_SOCK_1][CFG.AC_SOCK_1_2][CMD.ON]
         self.tasker.putTask(code)
 
     def iWannaDarkness(self):
@@ -81,11 +80,11 @@ class Plugin(plugin.Plugin):
         """
         
         for place in self.items.keys():
-            if not place in cfg.MY_PLACES:
+            if not place in CFG.MY_PLACES:
                 continue
 
-            if cfg.AC_SOCK_ALL in self.items[place]:
-                code = self.items[place][cfg.AC_SOCK_ALL][CMD.OFF]
+            if CFG.AC_SOCK_ALL in self.items[place]:
+                code = self.items[place][CFG.AC_SOCK_ALL][CMD.OFF]
                 self.tasker.putTask(code)
 
     def lightLighting(self):
@@ -97,10 +96,10 @@ class Plugin(plugin.Plugin):
             logger.logDebug("Doing nothing due to day time.")
             return
 
-        if not cfg.AC_SOCK_2 in cfg.MY_PLACES:
+        if not CFG.AC_SOCK_2 in CFG.MY_PLACES:
             return
 
-        code = self.items[cfg.AC_SOCK_2][cfg.AC_SOCK_2_2][CMD.ON]
+        code = self.items[CFG.AC_SOCK_2][CFG.AC_SOCK_2_2][CMD.ON]
         self.tasker.putTask(code)
 
     def goForBeerLighting(self):
@@ -112,11 +111,11 @@ class Plugin(plugin.Plugin):
             logger.logDebug("Doing nothing due to day time.")
             return
         
-        ac_sockets_to_on = [(cfg.AC_SOCK_2, cfg.AC_SOCK_2_2, CMD.ON), 
-                            (cfg.AC_SOCK_3, cfg.AC_SOCK_2_4, CMD.ON)]
+        ac_sockets_to_on = [(CFG.AC_SOCK_2, CFG.AC_SOCK_2_2, CMD.ON), 
+                            (CFG.AC_SOCK_3, CFG.AC_SOCK_2_4, CMD.ON)]
 
         for (place, ac_sock, sockcmd) in ac_sockets_to_on:
-            if not place in cfg.MY_PLACES:
+            if not place in CFG.MY_PLACES:
                 continue
 
             code = self.items[place][ac_sock][sockcmd]
@@ -153,7 +152,7 @@ class Plugin(plugin.Plugin):
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:
                         path = self.items
-                        if not cmdstring.split(CONST.DELIMITER)[0] in cfg.MY_PLACES:
+                        if not cmdstring.split(CONST.DELIMITER)[0] in CFG.MY_PLACES:
                             continue
 
                         for p in cmdstring.split(CONST.DELIMITER):

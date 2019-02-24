@@ -12,8 +12,7 @@ from config import CONST
 from config import CMD
 from config import EVENT
 from config import METHOD
-
-import cfg
+from config import CFG
 
 
 
@@ -27,7 +26,7 @@ class Plugin(plugin.Plugin):
         initialize
         """
         
-        self.items = cfg.ITEMS
+        self.items = CFG.ITEMS_SYSTEM
     
  
     def systemCmd(self, cmd):

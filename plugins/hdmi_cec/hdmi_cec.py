@@ -11,8 +11,8 @@ from config import CONST
 from config import CMD
 from config import EVENT
 from config import METHOD
+from config import CFG
 
-import cfg
 import sys
 
 try:
@@ -117,11 +117,11 @@ class Plugin(plugin.Plugin):
         initialize
         """
                 
-        self.items = cfg.ITEMS
+        self.items = CFG.ITEMS_CEC_DEV
         self.libCEC = {}
         self.uidevice = uinput.Device(self.keymap.values())
         self.cecconfig = cec.libcec_configuration()
-        self.this_cec_name = cfg.CEC_THIS_DEV
+        self.this_cec_name = CFG.CEC_THIS_DEV
         self.devices = {}
 
         self.autoinit = True
@@ -298,7 +298,7 @@ class Plugin(plugin.Plugin):
         :param device: device to power on
         """
         
-        if devicename == cfg.CEC_THIS_DEV:
+        if devicename == CFG.CEC_THIS_DEV:
             self["TV"].poweronDevice()
             self.setActiveSource()            
             
@@ -311,7 +311,7 @@ class Plugin(plugin.Plugin):
         :param device: device to stand by
         """
         
-        if devicename == cfg.CEC_THIS_DEV:
+        if devicename == CFG.CEC_THIS_DEV:
             self.setInactive()   
             self.standby()
             
@@ -365,7 +365,7 @@ class Plugin(plugin.Plugin):
                                cec.CEC_LOG_DEBUG:   "DEBUG",
                               }
 
-        if hasattr(cfg, 'CEC_LOG_TO_DEFAULT_LOG') and cfg.CEC_LOG_TO_DEFAULT_LOG:
+        if hasattr(CFG, 'CEC_LOG_TO_DEFAULT_LOG') and CFG.CEC_LOG_TO_DEFAULT_LOG:
             logger.logDebug("[CEC_LOG_%s] %s %s" % (libCECloglevel_dict[level], str(timestamp), message))
 
         if level == cec.CEC_LOG_DEBUG:
@@ -397,7 +397,7 @@ class Plugin(plugin.Plugin):
             self.sendEvents(EVENT.CEC_KEYRELEASED_TEMPLATE % keycode)
 
             if keycode in self.keymap.keys():
-                if hasattr(cfg, 'EMIT_REMOTECONTROL_KEYS') and cfg.EMIT_REMOTECONTROL_KEYS:
+                if hasattr(CFG, 'EMIT_REMOTECONTROL_KEYS') and CFG.EMIT_REMOTECONTROL_KEYS:
                     self.uidevice.emit_click(self.keymap[keycode])
                     logger.logDebug("[KEY] code %s emitted" % str(self.keymap[keycode]))
 
@@ -428,7 +428,7 @@ class Plugin(plugin.Plugin):
         event specific functions
         """
         
-        self.poweronDevice(cfg.CEC_THIS_DEV)
+        self.poweronDevice(CFG.CEC_THIS_DEV)
         self["TV"].poweronDevice()
         self.setActiveSource()
         
@@ -438,7 +438,7 @@ class Plugin(plugin.Plugin):
         """
         
         for device in self.getDevices():
-            if device != cfg.CEC_THIS_DEV and self[device].isActiveSource():
+            if device != CFG.CEC_THIS_DEV and self[device].isActiveSource():
                 return # if somebody else is active dont poweroff
 
         self.setInactive()
@@ -482,7 +482,7 @@ class Plugin(plugin.Plugin):
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:
-                        if not cmdstring.split(CONST.DELIMITER)[0] in cfg.CEC_DEV.keys():
+                        if not cmdstring.split(CONST.DELIMITER)[0] in CFG.CEC_DEV.keys():
                             return # it is not my device
 
                         [item, command] = cmdstring.split(CONST.DELIMITER)[-2:]

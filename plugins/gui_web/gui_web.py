@@ -10,8 +10,7 @@ from misc import plugin
 
 from config import CONST
 from config import METHOD
-
-import cfg
+from config import CFG
 
 import web
 
@@ -151,7 +150,7 @@ class Plugin(plugin.Plugin):
         """
                 
         try:
-            sys.argv = [sys.argv[0], str(cfg.PORT)]
+            sys.argv = [sys.argv[0], str(CFG.PORT)]
 
             fvars = globals()
 

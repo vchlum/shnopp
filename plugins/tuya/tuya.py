@@ -12,8 +12,7 @@ from config import CONST
 from config import CMD
 from config import EVENT
 from config import METHOD
-
-import cfg
+from config import CFG
 
 try:
     import pytuya
@@ -32,20 +31,20 @@ class Plugin(plugin.Plugin):
         initialize
         """
                 
-        self.items = cfg.ITEMS
+        self.items = CFG.ITEMS_TUYA
 
         self.daytime = day_time.DayTime()
         
         self.tasker = tasks.Tasks()
         
     def setStatus(self, devid, status):
-        key = cfg.DEVICES[devid]
+        key = CFG.DEVICES[devid]
         tuyadev = pytuya.OutletDevice(devid, key[0], key[1])
         tuyadev.set_status(status)
         
     def rf433Pressed(self, keycode):
-        if keycode in cfg.RF433 and cfg.RF433[keycode][0]:
-            self.setStatus(cfg.RF433[keycode][0], cfg.RF433[keycode][1])
+        if keycode in CFG.RF433 and CFG.RF433[keycode][0]:
+            self.setStatus(CFG.RF433[keycode][0], CFG.RF433[keycode][1])
 
     eventhandler = {EVENT.RF433_PRESSED.split(CONST.DELIMITER)[0]: rf433Pressed,
                    }

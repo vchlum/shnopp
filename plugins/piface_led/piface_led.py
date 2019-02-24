@@ -12,8 +12,7 @@ from config import CONST
 from config import CMD
 from config import EVENT
 from config import METHOD
-
-import cfg
+from config import CFG
 
 try:
     import pifacedigitalio
@@ -32,7 +31,7 @@ class Plugin(plugin.Plugin):
         initialize
         """
                 
-        self.items = cfg.ITEMS
+        self.items = CFG.ITEMS_PIFACE_LED
         self.pifacedigital = pifacedigitalio.PiFaceDigital()
 
         self.daytime = day_time.DayTime()
@@ -56,7 +55,7 @@ class Plugin(plugin.Plugin):
         
         logger.logDebug("Toggle %s" % str(arr))
         for i in arr:
-            if i in cfg.OUTPUT_CLOCKWISE:
+            if i in CFG.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].toggle()
 
     def toggleall(self):
@@ -64,21 +63,21 @@ class Plugin(plugin.Plugin):
         piface functions (toggle all)
         """
         
-        self.toggle(cfg.OUTPUT_ALL)
+        self.toggle(CFG.OUTPUT_ALL)
         
     def toggleBottom(self):
         """
         toggle on bottom two
         """
               
-        self.toggle(cfg.OUTPUT_BOTTOM)  
+        self.toggle(CFG.OUTPUT_BOTTOM)  
     
     def toggleTop(self):
         """
         toggle on top two
         """ 
         
-        self.toggle(cfg.OUTPUT_TOP)  
+        self.toggle(CFG.OUTPUT_TOP)  
 
     def turnOn(self, arr):
         """
@@ -88,7 +87,7 @@ class Plugin(plugin.Plugin):
         
         logger.logDebug("Turn on %s" % str(arr))
         for i in arr:
-            if i in cfg.OUTPUT_CLOCKWISE:
+            if i in CFG.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].turn_on()
 
     def turnOff(self, arr):
@@ -99,7 +98,7 @@ class Plugin(plugin.Plugin):
         
         logger.logDebug("Turn off %s" % str(arr))
         for i in arr:
-            if i in cfg.OUTPUT_CLOCKWISE:
+            if i in CFG.OUTPUT_CLOCKWISE:
                 self.pifacedigital.output_pins[i].turn_off()
 
     def blinkLEDs(self, leds):
@@ -124,28 +123,28 @@ class Plugin(plugin.Plugin):
         blink specific led
         """
         
-        self.blinkLEDs([cfg.OUTPUT_4])
+        self.blinkLEDs([CFG.OUTPUT_4])
      
     def blinkBottomRight(self):
         """
         blink specific led
         """
         
-        self.blinkLEDs([cfg.OUTPUT_5])
+        self.blinkLEDs([CFG.OUTPUT_5])
      
     def blinkTopLeft(self):
         """
         blink specific leds
         """
         
-        self.blinkLEDs([cfg.OUTPUT_6])
+        self.blinkLEDs([CFG.OUTPUT_6])
      
     def blinkTopRight(self):
         """
         blink specific leds
         """
         
-        self.blinkLEDs([cfg.OUTPUT_7])
+        self.blinkLEDs([CFG.OUTPUT_7])
 
     def turnOnAll(self):
         """
@@ -155,14 +154,14 @@ class Plugin(plugin.Plugin):
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
-        self.turnOn(cfg.OUTPUT_ALL)    
+        self.turnOn(CFG.OUTPUT_ALL)    
 
     def turnOffAll(self):
         """
         turn off all
         """
         
-        self.turnOff(cfg.OUTPUT_ALL)
+        self.turnOff(CFG.OUTPUT_ALL)
 
     def turnOnBottom(self):
         """
@@ -172,7 +171,7 @@ class Plugin(plugin.Plugin):
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
-        self.turnOn(cfg.OUTPUT_BOTTOM)  
+        self.turnOn(CFG.OUTPUT_BOTTOM)  
     
     def turnOnTop(self):
         """
@@ -182,7 +181,7 @@ class Plugin(plugin.Plugin):
         if self.daytime.isShining():
             logger.logDebug("Doing nothing due to day time.")
             return
-        self.turnOn(cfg.OUTPUT_TOP)
+        self.turnOn(CFG.OUTPUT_TOP)
 
     # receiver and received cmd handlers
     cmdhandler = { CMD.ON: turnOn,
