@@ -76,8 +76,11 @@ class Plugin(plugin.Plugin):
             keys_friendly_name = {}
             for i in self.buttons.keys():
                 keys_friendly_name[i] = (" - ").join(i.split(CONST.DELIMITER)[1:])
-                
-            return render.index(CONST.APP_NAME, sorted(self.buttons.keys()), self.buttons, keys_friendly_name, form)
+
+            # sort buttons by second column
+            sorted_buttons = [CONST.DELIMITER.join(y) for y in sorted([x.split(CONST.DELIMITER) for x in sorted(self.buttons.keys())], key = lambda x: x[1])]
+
+            return render.index(CONST.APP_NAME, sorted_buttons, self.buttons, keys_friendly_name, form)
 
         def POST(self):
             """
