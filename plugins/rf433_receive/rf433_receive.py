@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*- 
 
 import time
+import argparse
+import signal
 
 from misc import logger
 from misc import plugin
@@ -16,15 +18,15 @@ from config import METHOD
 import cfg
 
 try:
-    import pytuya
+    from rpi_rf import RFDevice
 except ImportError:
-    raise Exception('Importing pytuya failed!')
+    raise Exception('Importing rpi_rf failed!')
 
 
 
 class Plugin(plugin.Plugin):
     """
-    plugin for tuya
+    plugin for rf433_receive
     """
     
     def init(self):
@@ -32,23 +34,36 @@ class Plugin(plugin.Plugin):
         initialize
         """
                 
-        self.items = cfg.ITEMS
+        self.rfdevice = None
 
-        self.daytime = day_time.DayTime()
-        
-        self.tasker = tasks.Tasks()
-        
-    def setStatus(self, devid, status):
-        key = cfg.DEVICES[devid]
-        tuyadev = pytuya.OutletDevice(devid, key[0], key[1])
-        tuyadev.set_status(status)
-        
-    def rf433Pressed(self, keycode):
-        if keycode in cfg.RF433 and cfg.RF433[keycode][0]:
-            self.setStatus(cfg.RF433[keycode][0], cfg.RF433[keycode][1])
+        signal.signal(signal.SIGINT, self.exithandler)
+        self.rfdevice = RFDevice(27)
 
-    eventhandler = {EVENT.RF433_PRESSED.split(CONST.DELIMITER)[0]: rf433Pressed,
-                   }
+    def exithandler(signal, frame):
+        """
+        exit signal handler
+        """
+        self.rfdevice.cleanup()
+
+    def run(self):
+        """
+        plugin main
+        """
+        
+        self.rfdevice.enable_rx()
+        timestamp = None
+
+        while True:
+            if self.rfdevice.rx_code_timestamp != timestamp:
+                timestamp = self.rfdevice.rx_code_timestamp
+                logger.logDebug("rf433_receive code: %s length %s protocol: %s" % (str(self.rfdevice.rx_code), str(self.rfdevice.rx_pulselength), str(self.rfdevice.rx_proto)))
+                self.sendEvents(EVENT.RF433_PRESSED % self.rfdevice.rx_code)
+
+            time.sleep(cfg.SLEEP_INTERVAL)
+
+        rfdevice.cleanup()
+
+    eventhandler = { }
 
     def receiveData(self, data_dict):     
         """
@@ -65,15 +80,15 @@ class Plugin(plugin.Plugin):
             if data_dict["method"] == METHOD.CMD and data_dict["params"]["target"] == self.plugin_name:
                 for cmdstring in data_dict["params"]["cmds"]:
                     try:
-                        #if not cmdstring.split(CONST.DELIMITER)[0] in cfg.MY_PLACES:
-                        #    continue
+                        path = self.items
+                        if not cmdstring.split(CONST.DELIMITER)[0] in cfg.MY_PLACES:
+                            continue
 
-                        dev_cmd = self.items
                         for p in cmdstring.split(CONST.DELIMITER):
-                            dev_cmd = dev_cmd[p]
-
-                        self.setStatus(dev_cmd[0], dev_cmd[1])
-                        
+                            path = path[p]
+                            
+                        code = path
+                        self.tasker.putTask(code)
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
 
@@ -82,11 +97,7 @@ class Plugin(plugin.Plugin):
                 for event in data_dict["params"]["events"]:
 
                     try:
-                        event = event.split(CONST.DELIMITER)
-                        if len(event) == 2:
-                            if event[0] in self.eventhandler.keys():
-                                self.eventhandler[event[0]](self, event[1])
-                        elif event in self.eventhandler.keys():
+                        if event in self.eventhandler.keys():
                             self.eventhandler[event](self)
                     except Exception as err:
                         logger.logError("Failed to handle event '%s' error: %s" % (event, str(err)))

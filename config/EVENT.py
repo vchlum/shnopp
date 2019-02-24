@@ -32,3 +32,6 @@ KODI_PLAYBACK_ENDED_TEMPLATE =                   "kodi %s playback ended"
                      
 KODI_SCREENSAVER_ACTIVATED_TEMPLATE =            "kodi %s screensaver activated"
 KODI_SCREENSAVER_DEACTIVATED_TEMPLATE =          "kodi %s screensaver deactivated"
+
+### 433rf ###
+RF433_PRESSED = "RF433_PRESSED" + CONST.DELIMITER + "%s"

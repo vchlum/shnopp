@@ -209,6 +209,11 @@ class Plugin(plugin.Plugin):
                      EVENT.CEC_KEYPRESSED_TEMPLATE % 114: toggleall,
                      EVENT.CEC_KEYPRESSED_TEMPLATE % 115: toggleTop,
                      EVENT.CEC_KEYPRESSED_TEMPLATE % 116: toggleBottom,
+
+                     EVENT.RF433_PRESSED % 1572015379: turnOnAll,
+                     EVENT.RF433_PRESSED % 1572013339: turnOffAll,
+                     EVENT.RF433_PRESSED % 4196961755: turnOnAll,
+                     EVENT.RF433_PRESSED % 4196959703: turnOffAll,
                    }
 
     def receiveData(self, data_dict):   
