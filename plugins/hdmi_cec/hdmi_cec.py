@@ -431,7 +431,22 @@ class Plugin(plugin.Plugin):
         self.poweronDevice(CFG.CEC_THIS_DEV)
         self["TV"].poweronDevice()
         self.setActiveSource()
+
+    def poweronPS4(self):
+        """
+        event specific functions
+        """
         
+        self.poweronDevice("PlayStation 4")
+
+    def standbyPS4(self):
+        """
+        event specific functions
+        """
+        
+        self.standbyDevice("PlayStation 4")
+
+                
     def standbyIfNobodyElse(self):
         """
         event specific functions
@@ -464,6 +479,9 @@ class Plugin(plugin.Plugin):
                      EVENT.KODI_SCREENSAVER_ACTIVATED_TEMPLATE % CONST.HOSTNAME:   standbyIfNobodyElse,
 
                      EVENT.PERSONAL_TIME_TO_SLEEP: standbyAllAnyway,
+                     
+                     EVENT.WEB_HOOK_TURNON_PS4: poweronPS4,
+                     EVENT.WEB_HOOK_TURNOFF_PS4: standbyPS4,
                    }    
     
     # example:  mydata  = '{"cmd":{"PlayStation 4:poweron", "TV:poweron"}}'

@@ -3,7 +3,9 @@
 import socket
 
 from config import CONST
+from config import EVENT
 from config import CMD
+from config import EVENT
 
 ### general about ###
 OWNER_NAME = "Váša"
@@ -228,4 +230,18 @@ RF433 = {
          'a':('', True), '':('b', False), #all hoste
 }
 
+### web_hook ###
+WEB_HOOK_PORT = 8085
 
+WEB_HOOK_PASSWORD='<strong password here>'
+
+WEB_HOOKS = {
+        "turnonTVbacklight": EVENT.WEB_HOOK_TURNONTVBACKLIGHT,
+        "turnoffTVbacklight": EVENT.WEB_HOOK_TURNOFFTVBACKLIGHT,
+}
+
+ITEMS_WEB_HOOK = WEB_HOOKS
+
+
+
+ 

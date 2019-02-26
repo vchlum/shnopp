@@ -213,6 +213,9 @@ class Plugin(plugin.Plugin):
                      EVENT.RF433_PRESSED % 1572013339: turnOffAll,
                      EVENT.RF433_PRESSED % 4196961755: turnOnAll,
                      EVENT.RF433_PRESSED % 4196959703: turnOffAll,
+                     
+                     EVENT.WEB_HOOK_TURNONTVBACKLIGHT: turnOnAll,
+                     EVENT.WEB_HOOK_TURNOFFTVBACKLIGHT: turnOffAll,
                    }
 
     def receiveData(self, data_dict):   

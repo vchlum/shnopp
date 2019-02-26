@@ -35,3 +35,9 @@ KODI_SCREENSAVER_DEACTIVATED_TEMPLATE =          "kodi %s screensaver deactivate
 
 ### 433rf ###
 RF433_PRESSED = "RF433_PRESSED" + CONST.DELIMITER + "%s"
+
+WEB_HOOK_TURNONTVBACKLIGHT = 'web hook turnon TV backlight'
+WEB_HOOK_TURNOFFTVBACKLIGHT = 'web hook turnoff TV backlight'
+WEB_HOOK_TURNOFFTVBACKLIGHT = 'web hook turnoff TV backlight'
+WEB_HOOK_TURNON_PS4 = 'web hook turnon PS4'
+WEB_HOOK_TURNOFF_PS4 = 'web hook turnoff PS4'
