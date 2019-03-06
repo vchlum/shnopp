@@ -37,10 +37,10 @@ class Plugin(plugin.Plugin):
         
         self.tasker = tasks.Tasks()
         
-    def setStatus(self, devid, status):
+    def setStatus(self, devid, status, switch=1):
         key = CFG.DEVICES[devid]
         tuyadev = pytuya.OutletDevice(devid, key[0], key[1])
-        tuyadev.set_status(status)
+        tuyadev.set_status(status, switch)
         
     def rf433Pressed(self, keycode):
         if keycode in CFG.RF433 and CFG.RF433[keycode][0]:
@@ -71,8 +71,12 @@ class Plugin(plugin.Plugin):
                         for p in cmdstring.split(CONST.DELIMITER):
                             dev_cmd = dev_cmd[p]
 
-                        self.setStatus(dev_cmd[0], dev_cmd[1])
-                        
+                        if (len(dev_cmd) == 2):
+                            self.setStatus(dev_cmd[0], dev_cmd[1])
+
+                        if (len(dev_cmd) == 3):
+                            self.setStatus(dev_cmd[0], dev_cmd[1], dev_cmd[2])
+
                     except Exception as err:
                         logger.logError("Failed to run command %s: %s" % (str(cmdstring), str(err)))
 
