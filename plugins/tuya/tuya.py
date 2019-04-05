@@ -37,10 +37,33 @@ class Plugin(plugin.Plugin):
         
         self.tasker = tasks.Tasks()
         
-    def setStatus(self, devid, status, switch=1):
-        key = CFG.DEVICES[devid]
-        tuyadev = pytuya.OutletDevice(devid, key[0], key[1])
-        tuyadev.set_status(status, switch)
+    def setStatus(self, devid, newstatus, switch=1):
+        done = False
+
+        for attempt in ("first", "second", "third"):
+            try:
+                logger.logDebug("%s try to set status on %s" % (attempt, devid))
+
+                key = CFG.DEVICES[devid]
+                tuyadev = pytuya.OutletDevice(devid, key[0], key[1])
+
+                status = tuyadev.status()['dps'][str(switch)]
+                if status == newstatus:
+                    logger.logDebug("status already set, skipping  %s" % devid)
+                    break
+
+                tuyadev.set_status(newstatus, switch)
+                time.sleep(CFG.SLEEP_INTERVAL)
+
+                status = tuyadev.status()['dps'][str(switch)]
+                if status == newstatus:
+                    logger.logDebug("status successfully set %s" % devid)
+                    done = True
+            except:
+                logger.logError("failed to set status of %s" % devid)
+
+            if done:
+                break
         
     def rf433Pressed(self, keycode):
         if keycode in CFG.RF433 and CFG.RF433[keycode][0]:

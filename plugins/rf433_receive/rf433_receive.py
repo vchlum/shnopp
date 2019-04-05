@@ -21,6 +21,10 @@ try:
 except ImportError:
     raise Exception('Importing rpi_rf failed!')
 
+try:
+    import pytuya
+except ImportError:
+    raise Exception('Importing pytuya failed!')
 
 
 class Plugin(plugin.Plugin):
@@ -44,6 +48,34 @@ class Plugin(plugin.Plugin):
         """
         self.rfdevice.cleanup()
 
+    def setTuyaStatus(self, devid, newstatus, switch=1):
+        done = False
+
+        for attempt in ("first", "second", "third"):
+            try:
+                logger.logDebug("%s try to set status on %s" % (attempt, devid))
+
+                key = CFG.DEVICES[devid]
+                tuyadev = pytuya.OutletDevice(devid, key[0], key[1])
+
+                status = tuyadev.status()['dps'][str(switch)]
+                if status == newstatus:
+                    logger.logDebug("status already set, skipping  %s" % devid)
+                    break
+
+                tuyadev.set_status(newstatus, switch)
+                time.sleep(CFG.SLEEP_INTERVAL)
+
+                status = tuyadev.status()['dps'][str(switch)]
+                if status == newstatus:
+                    logger.logDebug("status successfully set %s" % devid)
+                    done = True
+            except:
+                logger.logError("failed to set status of %s" % devid)
+
+            if done:
+                break
+
     def run(self):
         """
         plugin main
@@ -51,12 +83,32 @@ class Plugin(plugin.Plugin):
         
         self.rfdevice.enable_rx()
         timestamp = None
+        lastcode = None
 
         while True:
             if self.rfdevice.rx_code_timestamp != timestamp:
+                try:
+                    if lastcode == self.rfdevice.rx_code and self.rfdevice.rx_code_timestamp < timestamp + 1000000:
+                        timestamp = self.rfdevice.rx_code_timestamp
+                        logger.logDebug("rf433_receive skipping: %s" % str(timestamp))
+                        time.sleep(CFG.SLEEP_INTERVAL)
+                        continue
+                except:
+                    logger.logDebug("rf433_receive passing: %s" % str(timestamp))
+                logger.logDebug("rf433_receive timestamp: %s" % str(timestamp))
                 timestamp = self.rfdevice.rx_code_timestamp
+                lastcode = self.rfdevice.rx_code
                 logger.logDebug("rf433_receive code: %s length %s protocol: %s" % (str(self.rfdevice.rx_code), str(self.rfdevice.rx_pulselength), str(self.rfdevice.rx_proto)))
-                self.sendEvents(EVENT.RF433_PRESSED % self.rfdevice.rx_code)
+
+                keycode = str(self.rfdevice.rx_code)
+                if keycode in CFG.RF433.keys() and CFG.RF433[keycode][0]:
+                    if len(CFG.RF433[keycode]) == 2:
+                        self.setTuyaStatus(CFG.RF433[keycode][0], CFG.RF433[keycode][1])
+                    if len(CFG.RF433[keycode]) == 3:
+                        self.setTuyaStatus(CFG.RF433[keycode][0], CFG.RF433[keycode][1], CFG.RF433[keycode][2])
+                    time.sleep(CFG.SLEEP_INTERVAL)
+                else:
+                    self.sendEvents(EVENT.RF433_PRESSED % self.rfdevice.rx_code)
 
             time.sleep(CFG.SLEEP_INTERVAL)
 
